@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, Outlet, useLocation } from "react-router";
+import type { LucideIcon } from "lucide-react";
 import {
   LayoutDashboard,
   Menu,
@@ -44,13 +45,71 @@ function BrandTitle({ className }: { className?: string }) {
   );
 }
 
-const menuItems = [
-  { path: "/", icon: LayoutDashboard, label: "Panel de Control" },
-  { path: "/inventario", icon: Package, label: "Inventario" },
-  { path: "/punto-venta", icon: ShoppingCart, label: "Punto de Venta" },
-  { path: "/clientes", icon: Users, label: "Clientes" },
-  { path: "/configuracion", icon: SettingsIcon, label: "Configuración" },
+type NavItem = {
+  path: string;
+  icon: LucideIcon;
+  /** Título corto y escaneable */
+  label: string;
+  /** Una línea: qué vas a hacer o qué verás al entrar */
+  hint: string;
+};
+
+type NavSection = {
+  id: string;
+  title: string;
+  items: NavItem[];
+};
+
+/** Orden operativo típico PyME; hints orientados a tarea (no jerga interna). */
+const navSections: NavSection[] = [
+  {
+    id: "operacion",
+    title: "Operación",
+    items: [
+      {
+        path: "/",
+        icon: LayoutDashboard,
+        label: "Inicio",
+        hint: "Resumen, métricas y pedidos recientes",
+      },
+      {
+        path: "/inventario",
+        icon: Package,
+        label: "Inventario",
+        hint: "Productos, stock y alertas de mínimo",
+      },
+      {
+        path: "/punto-venta",
+        icon: ShoppingCart,
+        label: "Ventas",
+        hint: "Cargar pedido, carrito y cobro",
+      },
+      {
+        path: "/clientes",
+        icon: Users,
+        label: "Clientes",
+        hint: "Directorio, datos de contacto y compras",
+      },
+    ],
+  },
+  {
+    id: "sistema",
+    title: "Sistema",
+    items: [
+      {
+        path: "/configuracion",
+        icon: SettingsIcon,
+        label: "Configuración",
+        hint: "Usuarios, roles, políticas y bitácora",
+      },
+    ],
+  },
 ];
+
+function isNavActive(pathname: string, itemPath: string) {
+  if (itemPath === "/") return pathname === "/";
+  return pathname === itemPath || pathname.startsWith(`${itemPath}/`);
+}
 
 function NavLinks({
   onNavigate,
@@ -62,37 +121,74 @@ function NavLinks({
   const location = useLocation();
 
   return (
-    <nav
-      className={className}
-      aria-label="Navegación principal"
-    >
-      <ul className="space-y-1">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive =
-            location.pathname === item.path ||
-            (item.path !== "/" && location.pathname.startsWith(item.path));
+    <nav className={className} aria-label="Navegación principal">
+      <ul className="space-y-5">
+        {navSections.map((section, sectionIndex) => (
+          <li key={section.id} className="list-none">
+            <p
+              id={`nav-section-${section.id}`}
+              className={cn(
+                "px-4 text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-400",
+                sectionIndex === 0 ? "pt-0" : "pt-1"
+              )}
+            >
+              {section.title}
+            </p>
+            <ul className="mt-2 space-y-1" aria-labelledby={`nav-section-${section.id}`}>
+              {section.items.map((item) => {
+                const Icon = item.icon;
+                const isActive = isNavActive(location.pathname, item.path);
 
-          return (
-            <li key={item.path}>
-              <Link
-                to={item.path}
-                onClick={onNavigate}
-                className={cn(
-                  "flex min-h-11 items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
-                  isActive
-                    ? "bg-blue-50 text-blue-700"
-                    : "text-gray-700 hover:bg-gray-100"
-                )}
-                aria-current={isActive ? "page" : undefined}
-              >
-                <Icon className="size-5 shrink-0" aria-hidden />
-                {item.label}
-              </Link>
-            </li>
-          );
-        })}
+                return (
+                  <li key={item.path}>
+                    <Link
+                      to={item.path}
+                      onClick={onNavigate}
+                      className={cn(
+                        "flex min-h-[3.25rem] gap-3 rounded-lg px-3 py-2.5 text-left transition-colors sm:min-h-12",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
+                        isActive
+                          ? "bg-blue-50 text-blue-800 ring-1 ring-blue-100/80"
+                          : "text-gray-800 hover:bg-gray-100"
+                      )}
+                      aria-current={isActive ? "page" : undefined}
+                    >
+                      <span
+                        className={cn(
+                          "flex size-10 shrink-0 items-center justify-center rounded-lg transition-colors",
+                          isActive
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-gray-100 text-gray-600"
+                        )}
+                        aria-hidden
+                      >
+                        <Icon className="size-5" />
+                      </span>
+                      <span className="min-w-0 flex-1 py-0.5">
+                        <span
+                          className={cn(
+                            "block text-sm font-semibold leading-tight",
+                            isActive ? "text-blue-900" : "text-gray-900"
+                          )}
+                        >
+                          {item.label}
+                        </span>
+                        <span
+                          className={cn(
+                            "mt-0.5 block text-xs font-normal leading-snug",
+                            isActive ? "text-blue-700/90" : "text-gray-500"
+                          )}
+                        >
+                          {item.hint}
+                        </span>
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </li>
+        ))}
       </ul>
     </nav>
   );
