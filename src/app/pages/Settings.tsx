@@ -169,7 +169,7 @@ type PolicyConfig = {
   description: string;
   tooltip: string;
   icon: typeof Lock;
-  settings: { label: string; value: string; tooltip?: string; recommended?: boolean }[];
+  settings: { label: string; value: string; tooltip?: string }[];
 };
 
 const securityPolicies: PolicyConfig[] = [
@@ -180,9 +180,9 @@ const securityPolicies: PolicyConfig[] = [
     tooltip: "Define la longitud mínima, tiempo de expiración y bloqueo tras intentos fallidos.",
     icon: Lock,
     settings: [
-      { label: "Longitud mínima", value: "8 caracteres", tooltip: "Mínimo recomendado para seguridad", recommended: true },
+      { label: "Longitud mínima", value: "8 caracteres", tooltip: "Mínimo recomendado para seguridad" },
       { label: "Expiración", value: "90 días", tooltip: "Fuerza cambio periódico de contraseña" },
-      { label: "Reintentos fallidos", value: "5 intentos", recommended: true },
+      { label: "Reintentos fallidos", value: "5 intentos" },
     ],
   },
   {
@@ -193,7 +193,7 @@ const securityPolicies: PolicyConfig[] = [
     icon: Shield,
     settings: [
       { label: "Sesiones simultáneas", value: "2 por usuario", tooltip: "Permite usar el sistema en dos dispositivos a la vez (ej. escritorio y móvil)" },
-      { label: "Timeout inactividad", value: "30 minutos", recommended: true },
+      { label: "Timeout inactividad", value: "30 minutos" },
       { label: "Bloqueo temporal", value: "15 minutos", tooltip: "Tiempo de bloqueo tras reintentos fallidos" },
     ],
   },
@@ -204,7 +204,7 @@ const securityPolicies: PolicyConfig[] = [
     tooltip: "Configura cuánto tiempo se conservan los logs y qué información se registra.",
     icon: FileText,
     settings: [
-      { label: "Retención de logs", value: "365 días", recommended: true },
+      { label: "Retención de logs", value: "365 días" },
       { label: "Registro de IP", value: "Habilitado" },
       { label: "Exportación", value: "CSV, Excel" },
     ],
@@ -472,15 +472,21 @@ export function Settings() {
           {/* Usuarios y Roles */}
           <TabsContent value="usuarios-roles" className="space-y-6">
             {hasUnsavedChanges && (
-              <Card className="p-4 bg-amber-50 border-amber-200 flex items-center gap-3">
-                <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
-                <div className="flex-1">
-                  <p className="font-medium text-amber-900">Hay cambios sin guardar</p>
-                  <p className="text-sm text-amber-800">Presiona Ctrl+S o el botón Guardar para aplicar los cambios.</p>
+              <Card className="border-l-4 border-l-amber-500 bg-amber-50 border-amber-200/80">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-amber-900">Hay cambios sin guardar</p>
+                      <p className="text-sm text-amber-800 mt-0.5">
+                        Los permisos de los roles han cambiado. Presiona Ctrl+S o usa el botón para aplicar.
+                      </p>
+                    </div>
+                  </div>
+                  <Button size="sm" onClick={handleSaveRoles} className="w-full sm:w-auto shrink-0">
+                    Guardar cambios
+                  </Button>
                 </div>
-                <Button size="sm" onClick={handleSaveRoles}>
-                  Guardar ahora
-                </Button>
               </Card>
             )}
 
@@ -1042,12 +1048,7 @@ export function Settings() {
                               </Tooltip>
                             )}
                           </div>
-                          <span className="flex items-center gap-1">
-                            {s.value}
-                            {s.recommended && (
-                              <Badge variant="secondary" className="text-[10px] px-1 py-0">Recomendado</Badge>
-                            )}
-                          </span>
+                          <span>{s.value}</span>
                         </div>
                       ))}
                     </div>
