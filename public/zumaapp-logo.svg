@@ -1,4 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" aria-hidden="true">
   <rect width="48" height="48" rx="10" fill="#2563eb"/>
-  <path d="M14 14h20v3.5H19.5L32 28v6H14v-3.5h14.5L14 17.5V14z" fill="#fff"/>
+  <text
+    x="24"
+    y="24"
+    text-anchor="middle"
+    dominant-baseline="central"
+    fill="#ffffff"
+    font-family="system-ui, -apple-system, Segoe UI, sans-serif"
+    font-size="9"
+    font-weight="300"
+    letter-spacing="0.02em"
+  >logo</text>
 </svg>
