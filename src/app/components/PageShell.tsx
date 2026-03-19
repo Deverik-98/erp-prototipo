@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { cn } from "./ui/utils";
 
 type PageShellProps = {
@@ -21,7 +22,7 @@ export function PageShell({ children, className }: PageShellProps) {
 
 type PageHeaderProps = {
   title: string;
-  description?: string;
+  description?: ReactNode;
   className?: string;
 };
 
@@ -31,10 +32,10 @@ export function PageHeader({ title, description, className }: PageHeaderProps) {
       <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
         {title}
       </h1>
-      {description ? (
-        <p className="mt-1 text-sm text-gray-500 sm:mt-2 sm:text-base">
+      {description != null && description !== "" ? (
+        <div className="mt-1 text-sm text-gray-600 sm:mt-2 sm:text-base [&_strong]:font-semibold [&_strong]:text-gray-800">
           {description}
-        </p>
+        </div>
       ) : null}
     </header>
   );
