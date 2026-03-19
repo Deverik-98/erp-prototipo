@@ -1,8 +1,18 @@
 import { useState } from "react";
-import { Search, Filter, Upload, Plus, Edit, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { Search, Filter, Upload, Plus, Edit, Trash2, FileSpreadsheet } from "lucide-react";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -26,8 +36,8 @@ const inventoryData = [
     nombre: "Leche Entera 1L",
     sku: "LEC-001",
     categoria: "Lácteos",
-    costo: "$45",
-    precio: "$65",
+    costo: "$ 45",
+    precio: "$ 65",
     stockActual: 150,
     stockMinimo: 50,
   },
@@ -36,8 +46,8 @@ const inventoryData = [
     nombre: "Queso Fresco 500g",
     sku: "QUE-002",
     categoria: "Lácteos",
-    costo: "$85",
-    precio: "$120",
+    costo: "$ 85",
+    precio: "$ 120",
     stockActual: 45,
     stockMinimo: 30,
   },
@@ -46,8 +56,8 @@ const inventoryData = [
     nombre: "Yogurt Natural 1L",
     sku: "YOG-003",
     categoria: "Lácteos",
-    costo: "$28",
-    precio: "$40",
+    costo: "$ 28",
+    precio: "$ 40",
     stockActual: 200,
     stockMinimo: 80,
   },
@@ -56,8 +66,8 @@ const inventoryData = [
     nombre: "Mantequilla 250g",
     sku: "MAN-004",
     categoria: "Lácteos",
-    costo: "$55",
-    precio: "$75",
+    costo: "$ 55",
+    precio: "$ 75",
     stockActual: 80,
     stockMinimo: 40,
   },
@@ -66,8 +76,8 @@ const inventoryData = [
     nombre: "Queso Mozzarella 1kg",
     sku: "QUE-005",
     categoria: "Lácteos",
-    costo: "$140",
-    precio: "$190",
+    costo: "$ 140",
+    precio: "$ 190",
     stockActual: 25,
     stockMinimo: 20,
   },
@@ -76,8 +86,8 @@ const inventoryData = [
     nombre: "Crema de Leche 500ml",
     sku: "CRE-006",
     categoria: "Lácteos",
-    costo: "$38",
-    precio: "$55",
+    costo: "$ 38",
+    precio: "$ 55",
     stockActual: 120,
     stockMinimo: 60,
   },
@@ -86,8 +96,8 @@ const inventoryData = [
     nombre: "Leche Descremada 1L",
     sku: "LEC-007",
     categoria: "Lácteos",
-    costo: "$48",
-    precio: "$68",
+    costo: "$ 48",
+    precio: "$ 68",
     stockActual: 15,
     stockMinimo: 50,
   },
@@ -96,8 +106,8 @@ const inventoryData = [
     nombre: "Queso Parmesano 200g",
     sku: "QUE-008",
     categoria: "Lácteos",
-    costo: "$95",
-    precio: "$135",
+    costo: "$ 95",
+    precio: "$ 135",
     stockActual: 35,
     stockMinimo: 25,
   },
@@ -106,6 +116,15 @@ const inventoryData = [
 export function Inventory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [importOpen, setImportOpen] = useState(false);
+
+  const handleImportMock = () => {
+    toast.success(
+      "Importación simulada: el archivo Excel se procesaría aquí. En producción se cargarían los productos.",
+      { duration: 5000 }
+    );
+    setImportOpen(false);
+  };
 
   const filteredData = inventoryData.filter((item) => {
     const matchesSearch =
@@ -153,10 +172,39 @@ export function Inventory() {
             </SelectContent>
           </Select>
 
-          <Button variant="outline" className="gap-2">
-            <Upload className="w-4 h-4" />
-            Importación Masiva (Excel)
-          </Button>
+          <Dialog open={importOpen} onOpenChange={setImportOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="gap-2">
+                <Upload className="w-4 h-4" />
+                Importación Masiva (Excel)
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Importación Masiva desde Excel</DialogTitle>
+                <DialogDescription>
+                  Sube un archivo Excel (.xlsx) con columnas: Nombre, SKU, Categoría, Costo, Precio, Stock Actual, Stock Mínimo. En este prototipo la acción es simulada.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-6 border-2 border-dashed border-gray-200 rounded-lg flex flex-col items-center justify-center gap-3">
+                <FileSpreadsheet className="w-16 h-16 text-gray-400" />
+                <p className="text-sm text-gray-500">
+                  Arrastra tu archivo aquí o haz clic para seleccionar
+                </p>
+                <p className="text-xs text-gray-400">
+                  Formato soportado: .xlsx
+                </p>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setImportOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleImportMock}>
+                  Simular Importación
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
           <Button className="gap-2">
             <Plus className="w-4 h-4" />

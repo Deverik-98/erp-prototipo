@@ -13,14 +13,14 @@ import { Badge } from "../components/ui/badge";
 const summaryCards = [
   {
     title: "Ventas del Día",
-    value: "$12,450",
+    value: "$ 12.450",
     change: "+12.5%",
     trend: "up",
     icon: DollarSign,
   },
   {
     title: "Gastos Totales",
-    value: "$3,280",
+    value: "$ 3.280",
     change: "-8.2%",
     trend: "down",
     icon: TrendingDown,
@@ -34,7 +34,7 @@ const summaryCards = [
   },
   {
     title: "Ganancia Neta",
-    value: "$9,170",
+    value: "$ 9.170",
     change: "+15.3%",
     trend: "up",
     icon: TrendingUp,
@@ -47,7 +47,7 @@ const recentOrders = [
     cliente: "María García",
     fecha: "19 Mar 2026, 10:30",
     productos: "Leche entera x5, Queso fresco x2",
-    total: "$450",
+    total: "$ 450",
     estado: "Completado",
   },
   {
@@ -55,7 +55,7 @@ const recentOrders = [
     cliente: "Carlos López",
     fecha: "19 Mar 2026, 09:15",
     productos: "Yogurt natural x10",
-    total: "$280",
+    total: "$ 280",
     estado: "Completado",
   },
   {
@@ -63,7 +63,7 @@ const recentOrders = [
     cliente: "Ana Martínez",
     fecha: "19 Mar 2026, 08:45",
     productos: "Leche descremada x3, Mantequilla x1",
-    total: "$320",
+    total: "$ 320",
     estado: "Pendiente",
   },
   {
@@ -71,7 +71,7 @@ const recentOrders = [
     cliente: "José Rodríguez",
     fecha: "18 Mar 2026, 16:20",
     productos: "Queso mozzarella x4, Crema x2",
-    total: "$680",
+    total: "$ 680",
     estado: "Completado",
   },
   {
@@ -79,7 +79,7 @@ const recentOrders = [
     cliente: "Laura Fernández",
     fecha: "18 Mar 2026, 15:10",
     productos: "Leche entera x8",
-    total: "$360",
+    total: "$ 360",
     estado: "Completado",
   },
 ];
@@ -90,7 +90,7 @@ export function Dashboard() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Panel de Control</h1>
         <p className="text-gray-500 mt-2">
-          Resumen de tu negocio al {new Date().toLocaleDateString("es-ES")}
+          Resumen de tu negocio al {new Date().toLocaleDateString("es-AR")}
         </p>
       </div>
 

@@ -78,7 +78,7 @@ const auditLogData = [
     usuario: "Admin Principal",
     accion: "Creó nuevo cliente",
     detalle:
-      'Cliente "Roberto Jiménez" - Tel: +52 555 9517 5328',
+      'Cliente "Roberto Jiménez" - Tel: +54 11 9517-5328',
     fecha: "19 Mar 2026, 11:45",
     tipo: "create",
   },
@@ -86,7 +86,7 @@ const auditLogData = [
     id: 4,
     usuario: "Carlos Pérez",
     accion: "Procesó venta",
-    detalle: "Pedido #1247 - Total: $450.00",
+    detalle: "Pedido #1247 - Total: $ 450",
     fecha: "19 Mar 2026, 10:30",
     tipo: "sale",
   },

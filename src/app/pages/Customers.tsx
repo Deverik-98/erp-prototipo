@@ -3,6 +3,16 @@ import { Search, Plus, Edit, Trash2, Phone, Mail } from "lucide-react";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
+import { Label } from "../components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -13,83 +23,109 @@ import {
 } from "../components/ui/table";
 import { Badge } from "../components/ui/badge";
 
-const customersData = [
+const initialCustomersData = [
   {
     id: 1,
     cliente: "María García",
-    telefono: "+52 555 1234 5678",
+    telefono: "+54 11 1234-5678",
     correo: "maria.garcia@email.com",
-    comprasTotales: "$12,450",
+    comprasTotales: "$ 12.450",
     ultimaCompra: "19 Mar 2026",
     pedidos: 24,
   },
   {
     id: 2,
     cliente: "Carlos López",
-    telefono: "+52 555 8765 4321",
+    telefono: "+54 11 8765-4321",
     correo: "carlos.lopez@email.com",
-    comprasTotales: "$8,920",
+    comprasTotales: "$ 8.920",
     ultimaCompra: "18 Mar 2026",
     pedidos: 18,
   },
   {
     id: 3,
     cliente: "Ana Martínez",
-    telefono: "+52 555 2468 1357",
+    telefono: "+54 11 2468-1357",
     correo: "ana.martinez@email.com",
-    comprasTotales: "$15,680",
+    comprasTotales: "$ 15.680",
     ultimaCompra: "17 Mar 2026",
     pedidos: 31,
   },
   {
     id: 4,
     cliente: "José Rodríguez",
-    telefono: "+52 555 9753 8642",
+    telefono: "+54 11 9753-8642",
     correo: "jose.rodriguez@email.com",
-    comprasTotales: "$6,340",
+    comprasTotales: "$ 6.340",
     ultimaCompra: "16 Mar 2026",
     pedidos: 12,
   },
   {
     id: 5,
     cliente: "Laura Fernández",
-    telefono: "+52 555 3691 2580",
+    telefono: "+54 11 3691-2580",
     correo: "laura.fernandez@email.com",
-    comprasTotales: "$19,230",
+    comprasTotales: "$ 19.230",
     ultimaCompra: "19 Mar 2026",
     pedidos: 42,
   },
   {
     id: 6,
     cliente: "Miguel Sánchez",
-    telefono: "+52 555 7412 9630",
+    telefono: "+54 11 7412-9630",
     correo: "miguel.sanchez@email.com",
-    comprasTotales: "$4,580",
+    comprasTotales: "$ 4.580",
     ultimaCompra: "15 Mar 2026",
     pedidos: 9,
   },
   {
     id: 7,
     cliente: "Patricia Díaz",
-    telefono: "+52 555 8520 7413",
+    telefono: "+54 11 8520-7413",
     correo: "patricia.diaz@email.com",
-    comprasTotales: "$11,750",
+    comprasTotales: "$ 11.750",
     ultimaCompra: "18 Mar 2026",
     pedidos: 22,
   },
   {
     id: 8,
     cliente: "Roberto Jiménez",
-    telefono: "+52 555 9517 5328",
+    telefono: "+54 11 9517-5328",
     correo: "roberto.jimenez@email.com",
-    comprasTotales: "$7,890",
+    comprasTotales: "$ 7.890",
     ultimaCompra: "17 Mar 2026",
     pedidos: 15,
   },
 ];
 
+type CustomerRow = (typeof initialCustomersData)[0];
+
 export function Customers() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [customersData, setCustomersData] = useState(initialCustomersData);
+  const [newClientOpen, setNewClientOpen] = useState(false);
+  const [newClient, setNewClient] = useState({
+    cliente: "",
+    telefono: "",
+    correo: "",
+  });
+
+  const handleAddClient = () => {
+    if (!newClient.cliente.trim() || !newClient.telefono.trim()) return;
+    const id = Math.max(...customersData.map((c) => c.id), 0) + 1;
+    setCustomersData([
+      ...customersData,
+      {
+        id,
+        ...newClient,
+        comprasTotales: "$ 0",
+        ultimaCompra: "-",
+        pedidos: 0,
+      },
+    ]);
+    setNewClient({ cliente: "", telefono: "", correo: "" });
+    setNewClientOpen(false);
+  };
 
   const filteredCustomers = customersData.filter(
     (customer) =>
@@ -122,10 +158,69 @@ export function Customers() {
             />
           </div>
 
-          <Button className="gap-2">
-            <Plus className="w-4 h-4" />
-            Nuevo Cliente
-          </Button>
+          <Dialog open={newClientOpen} onOpenChange={setNewClientOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <Plus className="w-4 h-4" />
+                Nuevo Cliente
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Nuevo Cliente</DialogTitle>
+                <DialogDescription>
+                  Agregar un cliente a la base de datos
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="cliente">Nombre</Label>
+                  <Input
+                    id="cliente"
+                    placeholder="Ej: Juan Pérez"
+                    value={newClient.cliente}
+                    onChange={(e) =>
+                      setNewClient((p) => ({ ...p, cliente: e.target.value }))
+                    }
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="telefono">Teléfono (WhatsApp)</Label>
+                  <Input
+                    id="telefono"
+                    placeholder="+54 11 1234-5678"
+                    value={newClient.telefono}
+                    onChange={(e) =>
+                      setNewClient((p) => ({ ...p, telefono: e.target.value }))
+                    }
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="correo">Correo electrónico</Label>
+                  <Input
+                    id="correo"
+                    type="email"
+                    placeholder="cliente@email.com"
+                    value={newClient.correo}
+                    onChange={(e) =>
+                      setNewClient((p) => ({ ...p, correo: e.target.value }))
+                    }
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setNewClientOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleAddClient}
+                  disabled={!newClient.cliente.trim() || !newClient.telefono.trim()}
+                >
+                  Guardar Cliente
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </Card>
 
@@ -145,7 +240,7 @@ export function Customers() {
         </Card>
         <Card className="p-6">
           <p className="text-sm text-gray-600 mb-1">Valor Total Ventas</p>
-          <p className="text-3xl font-bold text-blue-600">$86,840</p>
+          <p className="text-3xl font-bold text-blue-600">$ 86.840</p>
         </Card>
       </div>
 
