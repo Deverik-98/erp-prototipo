@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { Search, Plus, Trash2, ShoppingCart } from "lucide-react";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
@@ -14,9 +15,9 @@ import {
 import { Badge } from "../components/ui/badge";
 
 const customers = [
-  { id: 1, name: "María García", phone: "+52 555 1234" },
-  { id: 2, name: "Carlos López", phone: "+52 555 5678" },
-  { id: 3, name: "Ana Martínez", phone: "+52 555 9012" },
+  { id: 1, name: "María García", phone: "+54 11 1234-5678" },
+  { id: 2, name: "Carlos López", phone: "+54 11 5678-9012" },
+  { id: 3, name: "Ana Martínez", phone: "+54 11 9012-3456" },
 ];
 
 const products = [
@@ -88,19 +89,22 @@ export function PointOfSale() {
 
   const handleProcessSale = () => {
     if (cart.length === 0) {
-      alert("El carrito está vacío");
+      toast.error("El carrito está vacío");
       return;
     }
     if (!selectedCustomer) {
-      alert("Por favor selecciona un cliente");
+      toast.error("Por favor selecciona un cliente");
       return;
     }
     if (!paymentMethod) {
-      alert("Por favor selecciona un método de pago");
+      toast.error("Por favor selecciona un método de pago");
       return;
     }
 
-    alert(`Venta procesada exitosamente por $${total.toFixed(2)}`);
+    toast.success(
+      `Venta procesada exitosamente por $ ${total.toLocaleString("es-AR")}`,
+      { duration: 4000 }
+    );
     setCart([]);
     setSelectedCustomer("");
     setDiscount("0");
@@ -164,7 +168,7 @@ export function PointOfSale() {
                     <div>
                       <p className="font-medium">{product.name}</p>
                       <p className="text-sm text-gray-500">
-                        ${product.price} · Stock: {product.stock}
+                        $ {product.price} · Stock: {product.stock}
                       </p>
                     </div>
                     <Plus className="w-5 h-5 text-blue-600" />
@@ -201,7 +205,7 @@ export function PointOfSale() {
                   >
                     <div className="flex-1">
                       <p className="font-medium">{item.name}</p>
-                      <p className="text-sm text-gray-500">${item.price}</p>
+                      <p className="text-sm text-gray-500">$ {item.price}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <Button
@@ -227,7 +231,7 @@ export function PointOfSale() {
                       </Button>
                     </div>
                     <p className="font-semibold w-20 text-right">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      $ {(item.price * item.quantity).toLocaleString("es-AR")}
                     </p>
                     <Button
                       variant="ghost"
@@ -251,7 +255,7 @@ export function PointOfSale() {
             <div className="space-y-3 mb-6">
               <div className="flex justify-between">
                 <span className="text-gray-600">Subtotal:</span>
-                <span className="font-medium">${subtotal.toFixed(2)}</span>
+                <span className="font-medium">$ {subtotal.toLocaleString("es-AR")}</span>
               </div>
 
               <div>
@@ -269,14 +273,14 @@ export function PointOfSale() {
               {discountAmount > 0 && (
                 <div className="flex justify-between text-green-600">
                   <span>Descuento:</span>
-                  <span>-${discountAmount.toFixed(2)}</span>
+                  <span>- $ {discountAmount.toLocaleString("es-AR")}</span>
                 </div>
               )}
 
               <div className="border-t pt-3 flex justify-between text-lg">
                 <span className="font-semibold">Total:</span>
                 <span className="font-bold text-blue-600">
-                  ${total.toFixed(2)}
+                  $ {total.toLocaleString("es-AR")}
                 </span>
               </div>
             </div>
