@@ -854,89 +854,198 @@ export function Settings() {
 
           {/* Bitácora de Actividad */}
           <TabsContent value="auditoria" className="space-y-6">
-            <Card className="p-6">
-              <div className="mb-6">
+            <Card className="p-4 sm:p-6">
+              <div className="mb-5 sm:mb-6">
                 <h3 className="text-lg font-semibold">Historial de Auditoría</h3>
-                <p className="text-sm text-gray-500 mt-1">Registro de acciones con filtros y exportación</p>
+                <p className="mt-1 text-sm text-gray-500">
+                  Registro de acciones con filtros y exportación
+                </p>
               </div>
 
-              <div className="flex flex-wrap gap-3 mb-6">
-                <div className="relative flex-1 min-w-[180px]">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <Input placeholder="Buscar..." value={auditSearch} onChange={(e) => setAuditSearch(e.target.value)} className="pl-9" />
+              <div className="mb-6 space-y-5 rounded-lg border border-gray-100 bg-gray-50/60 p-4 sm:p-5">
+                <div className="min-w-0">
+                  <Label htmlFor="audit-search" className="mb-2 block text-sm font-medium text-gray-700">
+                    Buscar en el historial
+                  </Label>
+                  <div className="relative">
+                    <Search
+                      className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400"
+                      aria-hidden
+                    />
+                    <Input
+                      id="audit-search"
+                      placeholder="Usuario, acción, detalle o IP…"
+                      value={auditSearch}
+                      onChange={(e) => setAuditSearch(e.target.value)}
+                      className="w-full min-w-0 pl-9"
+                      autoComplete="off"
+                    />
+                  </div>
                 </div>
-                <div className="flex gap-2 flex-wrap">
-                  {QUICK_FILTERS.map((q) => (
+
+                <div className="min-w-0">
+                  <p className="mb-2 text-sm font-medium text-gray-700">
+                    Periodo rápido
+                  </p>
+                  <div
+                    className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0"
+                    role="group"
+                    aria-label="Atajos de periodo"
+                  >
+                    {QUICK_FILTERS.map((q) => (
+                      <Button
+                        key={q.id}
+                        type="button"
+                        variant={auditQuickFilter === q.id ? "default" : "outline"}
+                        size="sm"
+                        className="shrink-0"
+                        onClick={() =>
+                          setAuditQuickFilter(auditQuickFilter === q.id ? null : q.id)
+                        }
+                      >
+                        {q.label}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <fieldset className="min-w-0 space-y-0 border-0 p-0">
+                  <legend className="mb-2 block w-full text-sm font-medium text-gray-700">
+                    Rango de fechas
+                  </legend>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+                    <div className="min-w-0">
+                      <Label htmlFor="audit-date-from" className="text-xs text-gray-500">
+                        Desde
+                      </Label>
+                      <Input
+                        id="audit-date-from"
+                        type="date"
+                        value={auditDateFrom}
+                        onChange={(e) => setAuditDateFrom(e.target.value)}
+                        className="mt-1.5 w-full min-w-0 max-w-full"
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <Label htmlFor="audit-date-to" className="text-xs text-gray-500">
+                        Hasta
+                      </Label>
+                      <Input
+                        id="audit-date-to"
+                        type="date"
+                        value={auditDateTo}
+                        onChange={(e) => setAuditDateTo(e.target.value)}
+                        className="mt-1.5 w-full min-w-0 max-w-full"
+                      />
+                    </div>
+                  </div>
+                  {(auditDateFrom || auditDateTo) && (
                     <Button
-                      key={q.id}
-                      variant={auditQuickFilter === q.id ? "default" : "outline"}
+                      type="button"
+                      variant="ghost"
                       size="sm"
-                      onClick={() => setAuditQuickFilter(auditQuickFilter === q.id ? null : q.id)}
+                      className="mt-2 h-8 px-2 text-xs text-gray-600"
+                      onClick={() => {
+                        setAuditDateFrom("");
+                        setAuditDateTo("");
+                      }}
                     >
-                      {q.label}
+                      Limpiar fechas
                     </Button>
-                  ))}
+                  )}
+                </fieldset>
+
+                <div className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2">
+                  <div className="min-w-0">
+                    <Label htmlFor="audit-filter-user" className="mb-2 block text-sm font-medium text-gray-700">
+                      Usuario
+                    </Label>
+                    <Select value={auditFilterUser} onValueChange={setAuditFilterUser}>
+                      <SelectTrigger id="audit-filter-user" className="w-full min-w-0">
+                        <SelectValue placeholder="Usuario" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos los usuarios</SelectItem>
+                        {uniqueUsers.map((u) => (
+                          <SelectItem key={u} value={u}>
+                            {u}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="min-w-0">
+                    <Label htmlFor="audit-filter-type" className="mb-2 block text-sm font-medium text-gray-700">
+                      Tipo de acción
+                    </Label>
+                    <Select value={auditFilterType} onValueChange={setAuditFilterType}>
+                      <SelectTrigger id="audit-filter-type" className="w-full min-w-0">
+                        <SelectValue placeholder="Tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos los tipos</SelectItem>
+                        {uniqueTypes.map((t) => (
+                          <SelectItem key={t} value={t}>
+                            {t === "delete"
+                              ? "Eliminación"
+                              : t === "edit"
+                                ? "Modificación"
+                                : t === "create"
+                                  ? "Creación"
+                                  : t === "sale"
+                                    ? "Venta"
+                                    : t === "import"
+                                      ? "Importación"
+                                      : t === "login"
+                                        ? "Login"
+                                        : t}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div className="flex gap-2 items-center">
-                  <Input
-                    type="date"
-                    value={auditDateFrom}
-                    onChange={(e) => setAuditDateFrom(e.target.value)}
-                    className="w-[140px]"
-                  />
-                  <span className="text-gray-400">—</span>
-                  <Input
-                    type="date"
-                    value={auditDateTo}
-                    onChange={(e) => setAuditDateTo(e.target.value)}
-                    className="w-[140px]"
-                  />
+
+                <div className="flex flex-col gap-3 border-t border-gray-200/80 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-xs text-gray-500 sm:max-w-[50%]">
+                    Los filtros se combinan. El periodo rápido limita por tiempo además del rango manual.
+                  </p>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full gap-2 sm:w-auto sm:shrink-0"
+                      >
+                        <Download className="size-4 shrink-0" aria-hidden />
+                        Exportar
+                        <ChevronDown className="size-4 shrink-0 opacity-60" aria-hidden />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-[min(100vw-2rem,14rem)]">
+                      <DropdownMenuItem onClick={handleExportCSV}>
+                        Exportar como CSV
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => toast.info("Exportación Excel en desarrollo")}
+                      >
+                        Exportar como Excel
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-                <Select value={auditFilterUser} onValueChange={setAuditFilterUser}>
-                  <SelectTrigger className="w-[160px]">
-                    <SelectValue placeholder="Usuario" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
-                    {uniqueUsers.map((u) => (
-                      <SelectItem key={u} value={u}>{u}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Select value={auditFilterType} onValueChange={setAuditFilterType}>
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
-                    {uniqueTypes.map((t) => (
-                      <SelectItem key={t} value={t}>
-                        {t === "delete" ? "Eliminación" : t === "edit" ? "Modificación" : t === "create" ? "Creación" : t === "sale" ? "Venta" : t === "import" ? "Importación" : t === "login" ? "Login" : t}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="gap-2">
-                      <Download className="w-4 h-4" />
-                      Exportar
-                      <ChevronDown className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={handleExportCSV}>Exportar como CSV</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => toast.info("Exportación Excel en desarrollo")}>Exportar como Excel</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
               </div>
 
-              <Table>
+              <Table className="min-w-[720px]">
+                <caption className="sr-only">
+                  Tabla del historial de auditoría filtrado
+                </caption>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>
+                    <TableHead scope="col">
                       <button
-                        className="flex items-center gap-1 hover:underline"
+                        type="button"
+                        className="flex items-center gap-1 rounded-sm hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                         onClick={() => {
                           setAuditSortBy("usuario");
                           setAuditSortDir((d) => (auditSortBy === "usuario" && d === "desc" ? "asc" : "desc"));
@@ -945,11 +1054,12 @@ export function Settings() {
                         Usuario {auditSortBy === "usuario" && (auditSortDir === "asc" ? "↑" : "↓")}
                       </button>
                     </TableHead>
-                    <TableHead>Acción</TableHead>
-                    <TableHead>Detalle</TableHead>
-                    <TableHead>
+                    <TableHead scope="col">Acción</TableHead>
+                    <TableHead scope="col">Detalle</TableHead>
+                    <TableHead scope="col">
                       <button
-                        className="flex items-center gap-1 hover:underline"
+                        type="button"
+                        className="flex items-center gap-1 rounded-sm hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                         onClick={() => {
                           setAuditSortBy("fecha");
                           setAuditSortDir((d) => (auditSortBy === "fecha" && d === "asc" ? "desc" : "asc"));
@@ -958,10 +1068,11 @@ export function Settings() {
                         Fecha {auditSortBy === "fecha" && (auditSortDir === "asc" ? "↑" : "↓")}
                       </button>
                     </TableHead>
-                    <TableHead>IP</TableHead>
-                    <TableHead>
+                    <TableHead scope="col">IP</TableHead>
+                    <TableHead scope="col">
                       <button
-                        className="flex items-center gap-1 hover:underline"
+                        type="button"
+                        className="flex items-center gap-1 rounded-sm hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                         onClick={() => {
                           setAuditSortBy("tipo");
                           setAuditSortDir((d) => (auditSortBy === "tipo" && d === "desc" ? "asc" : "desc"));
@@ -993,22 +1104,28 @@ export function Settings() {
                   <p className="text-sm mt-1">Ajusta los filtros o el rango de fechas.</p>
                 </div>
               ) : (
-                <div className="flex items-center justify-between mt-4">
-                  <p className="text-sm text-gray-500">
-                    Mostrando {auditPage * PAGE_SIZE + 1}-{Math.min((auditPage + 1) * PAGE_SIZE, filteredAudit.length)} de {filteredAudit.length}
+                <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-center text-sm text-gray-500 sm:text-left">
+                    Mostrando {auditPage * PAGE_SIZE + 1}-
+                    {Math.min((auditPage + 1) * PAGE_SIZE, filteredAudit.length)} de{" "}
+                    {filteredAudit.length}
                   </p>
-                  <div className="flex gap-2">
+                  <div className="flex justify-center gap-2 sm:justify-end">
                     <Button
+                      type="button"
                       variant="outline"
                       size="sm"
+                      className="min-w-[7rem]"
                       disabled={auditPage === 0}
                       onClick={() => setAuditPage((p) => p - 1)}
                     >
                       Anterior
                     </Button>
                     <Button
+                      type="button"
                       variant="outline"
                       size="sm"
+                      className="min-w-[7rem]"
                       disabled={auditPage >= totalPages - 1}
                       onClick={() => setAuditPage((p) => p + 1)}
                     >
