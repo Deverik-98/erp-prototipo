@@ -71,6 +71,7 @@ import {
 } from "../components/ui/collapsible";
 import { toast } from "sonner";
 import { PageHeader, PageShell } from "../components/PageShell";
+import { PLACEHOLDER_EMAIL, PLACEHOLDER_FULL_NAME } from "../branding";
 
 type UserRow = {
   id: number;
@@ -84,8 +85,8 @@ type UserRow = {
 const initialUsersData: UserRow[] = [
   {
     id: 1,
-    nombre: "Admin Principal",
-    correo: "admin@empresa.com",
+    nombre: "Erikson Pacheco",
+    correo: "pachecoerikson@gmail.com",
     rol: "Admin",
     permisos: ["Todo"],
     estado: "Activo",
@@ -128,15 +129,15 @@ type AuditLogEntry = {
 };
 
 const auditLogData: AuditLogEntry[] = [
-  { id: 1, usuario: "Admin Principal", accion: "Eliminó producto", detalle: 'Producto "Leche Deslactosada 1L" (SKU: LEC-009)', fecha: "19 Mar 2026, 14:30", tipo: "delete", ip: "192.168.1.105", timestamp: new Date("2026-03-19T14:30").getTime() },
+  { id: 1, usuario: "Epacheco", accion: "Eliminó producto", detalle: 'Producto "Leche Deslactosada 1L" (SKU: LEC-009)', fecha: "19 Mar 2026, 14:30", tipo: "delete", ip: "192.168.1.105", timestamp: new Date("2026-03-19T14:30").getTime() },
   { id: 2, usuario: "María González", accion: "Modificó inventario", detalle: 'Producto "Queso Fresco 500g" - Stock actualizado: 45 unidades', fecha: "19 Mar 2026, 13:15", tipo: "edit", ip: "192.168.1.112", timestamp: new Date("2026-03-19T13:15").getTime() },
-  { id: 3, usuario: "Admin Principal", accion: "Creó nuevo cliente", detalle: 'Cliente "Roberto Jiménez" - Tel: +54 11 9517-5328', fecha: "19 Mar 2026, 11:45", tipo: "create", ip: "192.168.1.105", timestamp: new Date("2026-03-19T11:45").getTime() },
+  { id: 3, usuario: "Epacheco", accion: "Creó nuevo cliente", detalle: 'Cliente "Roberto Jiménez" - Tel: +54 11 9517-5328', fecha: "19 Mar 2026, 11:45", tipo: "create", ip: "192.168.1.105", timestamp: new Date("2026-03-19T11:45").getTime() },
   { id: 4, usuario: "Carlos Pérez", accion: "Procesó venta", detalle: "Pedido #1247 - Total: $ 450", fecha: "19 Mar 2026, 10:30", tipo: "sale", ip: "192.168.1.108", timestamp: new Date("2026-03-19T10:30").getTime() },
-  { id: 5, usuario: "Admin Principal", accion: "Modificó usuario", detalle: 'Usuario "Ana López" - Estado cambiado a Inactivo', fecha: "18 Mar 2026, 16:20", tipo: "edit", ip: "192.168.1.105", timestamp: new Date("2026-03-18T16:20").getTime() },
+  { id: 5, usuario: "Epacheco", accion: "Modificó usuario", detalle: 'Usuario "Ana López" - Estado cambiado a Inactivo', fecha: "18 Mar 2026, 16:20", tipo: "edit", ip: "192.168.1.105", timestamp: new Date("2026-03-18T16:20").getTime() },
   { id: 6, usuario: "María González", accion: "Eliminó pedido", detalle: "Pedido #1240 - Cliente: Juan Herrera", fecha: "18 Mar 2026, 15:10", tipo: "delete", ip: "192.168.1.112", timestamp: new Date("2026-03-18T15:10").getTime() },
-  { id: 7, usuario: "Admin Principal", accion: "Importación masiva", detalle: "25 productos importados desde Excel", fecha: "18 Mar 2026, 09:00", tipo: "import", ip: "192.168.1.105", timestamp: new Date("2026-03-18T09:00").getTime() },
+  { id: 7, usuario: "Epacheco", accion: "Importación masiva", detalle: "25 productos importados desde Excel", fecha: "18 Mar 2026, 09:00", tipo: "import", ip: "192.168.1.105", timestamp: new Date("2026-03-18T09:00").getTime() },
   { id: 8, usuario: "Carlos Pérez", accion: "Inicio de sesión", detalle: "Acceso exitoso al sistema", fecha: "19 Mar 2026, 08:15", tipo: "login", ip: "192.168.1.108", timestamp: new Date("2026-03-19T08:15").getTime() },
-  { id: 9, usuario: "Admin Principal", accion: "Cambió política de contraseñas", detalle: "Expiración actualizada a 90 días", fecha: "17 Mar 2026, 11:00", tipo: "edit", ip: "192.168.1.105", timestamp: new Date("2026-03-17T11:00").getTime() },
+  { id: 9, usuario: "Epacheco", accion: "Cambió política de contraseñas", detalle: "Expiración actualizada a 90 días", fecha: "17 Mar 2026, 11:00", tipo: "edit", ip: "192.168.1.105", timestamp: new Date("2026-03-17T11:00").getTime() },
   { id: 10, usuario: "María González", accion: "Modificó inventario", detalle: 'Producto "Yogurt Natural" - Stock: 200', fecha: "16 Mar 2026, 14:00", tipo: "edit", ip: "192.168.1.112", timestamp: new Date("2026-03-16T14:00").getTime() },
 ];
 
@@ -663,7 +664,7 @@ export function Settings() {
                         <div className="grid gap-2">
                           <Label>Nombre</Label>
                           <Input
-                            placeholder="Ej: Juan Pérez"
+                            placeholder={`Ej: ${PLACEHOLDER_FULL_NAME}`}
                             value={newUser.nombre}
                             onChange={(e) => setNewUser((p) => ({ ...p, nombre: e.target.value }))}
                           />
@@ -672,7 +673,7 @@ export function Settings() {
                           <Label>Correo electrónico</Label>
                           <Input
                             type="email"
-                            placeholder="usuario@empresa.com"
+                            placeholder={PLACEHOLDER_EMAIL}
                             value={newUser.correo}
                             onChange={(e) => setNewUser((p) => ({ ...p, correo: e.target.value }))}
                           />

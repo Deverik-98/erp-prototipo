@@ -17,6 +17,32 @@ import {
 } from "./ui/sheet";
 import { Button } from "./ui/button";
 import { cn } from "./ui/utils";
+import {
+  APP_NAME,
+  APP_TAGLINE,
+  logoUrl,
+  SESSION_DISPLAY_NAME,
+  SESSION_EMAIL,
+  SESSION_INITIALS,
+} from "../branding";
+
+function BrandTitle({ className }: { className?: string }) {
+  return (
+    <div className={cn("flex min-w-0 items-center gap-2", className)}>
+      <img
+        src={logoUrl()}
+        alt=""
+        width={36}
+        height={36}
+        className="size-9 shrink-0 rounded-lg"
+      />
+      <div className="min-w-0">
+        <p className="truncate text-base font-semibold text-gray-900">{APP_NAME}</p>
+        <p className="truncate text-xs text-gray-500">{APP_TAGLINE}</p>
+      </div>
+    </div>
+  );
+}
 
 const menuItems = [
   { path: "/", icon: LayoutDashboard, label: "Panel de Control" },
@@ -98,12 +124,7 @@ export function Layout() {
         >
           <Menu className="size-5" aria-hidden />
         </Button>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-base font-semibold text-gray-900">
-            ERP Business
-          </p>
-          <p className="truncate text-xs text-gray-500">Sistema de Gestión</p>
-        </div>
+        <BrandTitle className="flex-1" />
       </header>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -113,13 +134,11 @@ export function Layout() {
           className="flex h-full max-h-screen w-[min(100vw-2rem,20rem)] flex-col gap-0 p-0 sm:max-w-xs"
         >
           <SheetHeader className="border-b border-gray-200 p-4 text-left">
-            <SheetTitle className="text-lg">ERP Business</SheetTitle>
+            <SheetTitle className="sr-only">{APP_NAME}</SheetTitle>
             <SheetDescription className="sr-only">
-              Menú de navegación del panel de administración
+              Menú de navegación del panel
             </SheetDescription>
-            <p className="text-sm font-normal text-gray-500">
-              Sistema de Gestión
-            </p>
+            <BrandTitle />
           </SheetHeader>
           <NavLinks
             className="flex-1 overflow-y-auto p-3"
@@ -128,15 +147,15 @@ export function Layout() {
           <div className="border-t border-gray-200 p-4">
             <div className="flex items-center gap-3">
               <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-blue-100">
-                <span className="text-sm font-semibold text-blue-700">AD</span>
+                <span className="text-sm font-semibold text-blue-700">
+                  {SESSION_INITIALS}
+                </span>
               </div>
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium text-gray-900">
-                  Administrador
+                  {SESSION_DISPLAY_NAME}
                 </p>
-                <p className="truncate text-xs text-gray-500">
-                  admin@empresa.com
-                </p>
+                <p className="truncate text-xs text-gray-500">{SESSION_EMAIL}</p>
               </div>
             </div>
           </div>
@@ -149,22 +168,33 @@ export function Layout() {
         aria-label="Barra lateral"
       >
         <div className="border-b border-gray-200 p-6">
-          <h1 className="text-xl font-bold text-gray-900">ERP Business</h1>
-          <p className="mt-1 text-sm text-gray-500">Sistema de Gestión</p>
+          <div className="flex items-center gap-3">
+            <img
+              src={logoUrl()}
+              alt=""
+              width={40}
+              height={40}
+              className="size-10 shrink-0 rounded-lg"
+            />
+            <div className="min-w-0">
+              <h1 className="text-xl font-bold text-gray-900">{APP_NAME}</h1>
+              <p className="mt-0.5 text-sm text-gray-500">{APP_TAGLINE}</p>
+            </div>
+          </div>
         </div>
         <NavLinks className="flex-1 overflow-y-auto p-4" />
         <div className="border-t border-gray-200 p-4">
           <div className="flex items-center gap-3 px-2 py-2">
             <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-blue-100">
-              <span className="text-sm font-semibold text-blue-700">AD</span>
+              <span className="text-sm font-semibold text-blue-700">
+                {SESSION_INITIALS}
+              </span>
             </div>
             <div className="min-w-0">
               <p className="truncate text-sm font-medium text-gray-900">
-                Administrador
+                {SESSION_DISPLAY_NAME}
               </p>
-              <p className="truncate text-xs text-gray-500">
-                admin@empresa.com
-              </p>
+              <p className="truncate text-xs text-gray-500">{SESSION_EMAIL}</p>
             </div>
           </div>
         </div>
