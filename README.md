@@ -49,6 +49,11 @@ El proyecto se despliega en **GitHub Pages** automáticamente al hacer push a la
 
 **Demo online:** [https://deverik-98.github.io/erp-prototipo/](https://deverik-98.github.io/erp-prototipo/)
 
+## Interfaz
+
+- Diseño **responsive** (sidebar colapsable en móvil, tablas con scroll horizontal).
+- Enlace **“Saltar al contenido principal”** visible al enfocar con teclado.
+
 ## Stack
 
 - React 18 + TypeScript

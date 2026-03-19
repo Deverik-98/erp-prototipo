@@ -1,4 +1,5 @@
 import { TrendingUp, TrendingDown, AlertCircle, DollarSign } from "lucide-react";
+import { PageHeader, PageShell } from "../components/PageShell";
 import { Card } from "../components/ui/card";
 import {
   Table,
@@ -15,28 +16,28 @@ const summaryCards = [
     title: "Ventas del Día",
     value: "$ 12.450",
     change: "+12.5%",
-    trend: "up",
+    trend: "up" as const,
     icon: DollarSign,
   },
   {
     title: "Gastos Totales",
     value: "$ 3.280",
     change: "-8.2%",
-    trend: "down",
+    trend: "down" as const,
     icon: TrendingDown,
   },
   {
     title: "Alertas de Bajo Stock",
     value: "7",
     change: "Productos",
-    trend: "alert",
+    trend: "alert" as const,
     icon: AlertCircle,
   },
   {
     title: "Ganancia Neta",
     value: "$ 9.170",
     change: "+15.3%",
-    trend: "up",
+    trend: "up" as const,
     icon: TrendingUp,
   },
 ];
@@ -86,49 +87,46 @@ const recentOrders = [
 
 export function Dashboard() {
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Panel de Control</h1>
-        <p className="text-gray-500 mt-2">
-          Resumen de tu negocio al {new Date().toLocaleDateString("es-AR")}
-        </p>
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Panel de Control"
+        description={`Resumen de tu negocio al ${new Date().toLocaleDateString("es-AR")}`}
+      />
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:mb-8 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
         {summaryCards.map((card) => {
           const Icon = card.icon;
           return (
-            <Card key={card.title} className="p-6">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">{card.title}</p>
-                  <p className="text-2xl font-bold text-gray-900 mb-2">
+            <Card key={card.title} className="p-4 sm:p-6">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm text-gray-600">{card.title}</p>
+                  <p className="mt-1 text-xl font-bold text-gray-900 sm:text-2xl">
                     {card.value}
                   </p>
-                  <div className="flex items-center gap-1">
+                  <div className="mt-1 flex items-center gap-1">
                     {card.trend === "up" && (
-                      <TrendingUp className="w-4 h-4 text-green-600" />
+                      <TrendingUp className="size-4 shrink-0 text-green-600" aria-hidden />
                     )}
                     {card.trend === "down" && (
-                      <TrendingDown className="w-4 h-4 text-green-600" />
+                      <TrendingDown className="size-4 shrink-0 text-green-600" aria-hidden />
                     )}
                     {card.trend === "alert" && (
-                      <AlertCircle className="w-4 h-4 text-orange-600" />
+                      <AlertCircle className="size-4 shrink-0 text-orange-600" aria-hidden />
                     )}
                     <span
-                      className={`text-sm ${
+                      className={
                         card.trend === "alert"
-                          ? "text-orange-600"
-                          : "text-green-600"
-                      }`}
+                          ? "text-sm text-orange-600"
+                          : "text-sm text-green-600"
+                      }
                     >
                       {card.change}
                     </span>
                   </div>
                 </div>
-                <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center">
-                  <Icon className="w-6 h-6 text-blue-600" />
+                <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-blue-50 sm:size-12">
+                  <Icon className="size-5 text-blue-600 sm:size-6" aria-hidden />
                 </div>
               </div>
             </Card>
@@ -136,24 +134,28 @@ export function Dashboard() {
         })}
       </div>
 
-      {/* Recent Orders Table */}
-      <Card className="p-6">
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-900">Últimos Pedidos</h2>
-          <p className="text-sm text-gray-500 mt-1">
+      <Card className="p-4 sm:p-6">
+        <div className="mb-4 sm:mb-6">
+          <h2 className="text-lg font-bold text-gray-900 sm:text-xl">
+            Últimos Pedidos
+          </h2>
+          <p className="mt-1 text-sm text-gray-500">
             Pedidos procesados recientemente
           </p>
         </div>
 
-        <Table>
+        <Table className="min-w-[640px]">
+          <caption className="sr-only">
+            Tabla de los últimos pedidos con cliente, fecha, productos y total
+          </caption>
           <TableHeader>
             <TableRow>
-              <TableHead>ID Pedido</TableHead>
-              <TableHead>Cliente</TableHead>
-              <TableHead>Fecha y Hora</TableHead>
-              <TableHead>Productos</TableHead>
-              <TableHead>Total</TableHead>
-              <TableHead>Estado</TableHead>
+              <TableHead scope="col">ID Pedido</TableHead>
+              <TableHead scope="col">Cliente</TableHead>
+              <TableHead scope="col">Fecha y Hora</TableHead>
+              <TableHead scope="col">Productos</TableHead>
+              <TableHead scope="col">Total</TableHead>
+              <TableHead scope="col">Estado</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -161,8 +163,10 @@ export function Dashboard() {
               <TableRow key={order.id}>
                 <TableCell className="font-medium">{order.id}</TableCell>
                 <TableCell>{order.cliente}</TableCell>
-                <TableCell className="text-gray-600">{order.fecha}</TableCell>
-                <TableCell className="max-w-xs truncate">
+                <TableCell className="whitespace-nowrap text-gray-600">
+                  {order.fecha}
+                </TableCell>
+                <TableCell className="max-w-[200px] truncate sm:max-w-xs">
                   {order.productos}
                 </TableCell>
                 <TableCell className="font-semibold">{order.total}</TableCell>
@@ -180,6 +184,6 @@ export function Dashboard() {
           </TableBody>
         </Table>
       </Card>
-    </div>
+    </PageShell>
   );
 }
