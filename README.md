@@ -51,7 +51,7 @@ El proyecto se despliega en **GitHub Pages** automáticamente al hacer push a la
 
 ## Interfaz
 
-- Diseño **responsive** (sidebar colapsable en móvil, tablas con scroll horizontal).
+- Diseño **responsive** (menú lateral con secciones Operación / Sistema, título + descripción por ítem; en móvil, drawer; tablas con scroll horizontal).
 - Enlace **“Saltar al contenido principal”** visible al enfocar con teclado.
 
 ## Stack
