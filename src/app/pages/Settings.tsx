@@ -3,6 +3,7 @@ import {
   Shield,
   UserCog,
   Eye,
+  Pencil,
   Activity,
   Download,
   Search,
@@ -159,6 +160,10 @@ type RoleConfig = {
 const initialRoles: RoleConfig[] = [
   { id: "admin", name: "Administrador", description: "Control total del sistema. Puede gestionar usuarios, roles, inventario, ventas y configuración. Acceso jerárquico máximo.", color: "purple", icon: Shield, permissions: permissions.map((p) => p.id) },
   { id: "cajero", name: "Cajero", description: "Operación de punto de venta y atención a clientes. Acceso limitado a ventas, consulta de inventario y directorio de clientes.", color: "blue", icon: UserCog, permissions: ["ventas", "clientes"] },
+  { id: "supervisor", name: "Supervisor", description: "Supervisa operaciones de venta e inventario. Puede ver reportes y gestionar clientes.", color: "green", icon: UserCog, permissions: ["ventas", "inventario", "clientes", "reportes"] },
+  { id: "contador", name: "Contador", description: "Acceso a reportes financieros y auditoría. No modifica inventario ni ventas.", color: "amber", icon: UserCog, permissions: ["reportes"] },
+  { id: "almacen", name: "Almacén", description: "Gestión de inventario y stock. No accede a ventas ni configuración.", color: "teal", icon: UserCog, permissions: ["inventario"] },
+  { id: "vendedor", name: "Vendedor", description: "Registra ventas y consulta clientes. Acceso limitado al punto de venta.", color: "indigo", icon: UserCog, permissions: ["ventas", "clientes"] },
 ];
 
 type PolicyConfig = {
@@ -214,9 +219,9 @@ const securityPolicies: PolicyConfig[] = [
 ];
 
 function exportToCSV(data: AuditLogEntry[]) {
-  const headers = ["Usuario", "Acción", "Detalle", "Fecha", "Tipo", "IP"];
+  const headers = ["Usuario", "Acción", "Detalle", "Fecha", "IP", "Tipo"];
   const rows = data.map((r) =>
-    [r.usuario, r.accion, r.detalle, r.fecha, r.tipo, r.ip].join(",")
+    [r.usuario, r.accion, r.detalle, r.fecha, r.ip, r.tipo].join(",")
   );
   const csv = [headers.join(","), ...rows].join("\n");
   const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
@@ -251,8 +256,10 @@ export function Settings() {
   const [newRoleOpen, setNewRoleOpen] = useState(false);
   const [newRoleName, setNewRoleName] = useState("");
   const [newRoleDesc, setNewRoleDesc] = useState("");
-  const [policyConfigOpen, setPolicyConfigOpen] = useState<string | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [newUserOpen, setNewUserOpen] = useState(false);
+  const [editUserOpen, setEditUserOpen] = useState<number | null>(null);
+  const [newUser, setNewUser] = useState({ nombre: "", correo: "", rol: "Cajero", estado: "Activo" });
   const [expandedRoles, setExpandedRoles] = useState<string[]>(["admin"]);
 
   const roleNames = roles.map((r) => r.name);
@@ -272,7 +279,6 @@ export function Settings() {
           : u
       )
     );
-    setHasUnsavedChanges(true);
   };
 
   const handleSaveRoles = () => {
@@ -394,10 +400,31 @@ export function Settings() {
         e.preventDefault();
         if (hasUnsavedChanges) handleSaveRoles();
       }
-      if (e.key === "Escape") setPolicyConfigOpen(null);
     },
     [hasUnsavedChanges]
   );
+
+  const handleAddUser = () => {
+    if (!newUser.nombre.trim() || !newUser.correo.trim()) return;
+    const id = Math.max(...users.map((u) => u.id), 0) + 1;
+    const nombre = newUser.nombre;
+    setUsers([
+      ...users,
+      {
+        id,
+        nombre: newUser.nombre,
+        correo: newUser.correo,
+        rol: newUser.rol,
+        permisos: newUser.rol === "Administrador" ? ["Todo"] : ["Ventas", "Ver Inventario"],
+        estado: newUser.estado,
+      },
+    ]);
+    setNewUser({ nombre: "", correo: "", rol: "Cajero", estado: "Activo" });
+    setNewUserOpen(false);
+    toast.success(`Usuario "${nombre}" creado`);
+  };
+
+  const editingUser = editUserOpen ? users.find((u) => u.id === editUserOpen) : null;
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
@@ -508,8 +535,12 @@ export function Settings() {
               </Dialog>
             </div>
 
-            {/* Acordeón de Roles */}
-            <div className="space-y-2">
+            {/* Acordeón de Roles - scroll interno si hay más de 5 */}
+            <div
+              className={`space-y-2 rounded-lg border bg-gray-50/50 ${
+                roles.length > 5 ? "max-h-[400px] overflow-y-auto p-2" : ""
+              }`}
+            >
               {roles.map((role) => {
                 const Icon = role.icon;
                 const isOpen = expandedRoles.includes(role.id);
@@ -518,7 +549,15 @@ export function Settings() {
                     ? "bg-purple-100 text-purple-600"
                     : role.color === "blue"
                       ? "bg-blue-100 text-blue-600"
-                      : "bg-gray-100 text-gray-600";
+                      : role.color === "green"
+                        ? "bg-green-100 text-green-600"
+                        : role.color === "amber"
+                          ? "bg-amber-100 text-amber-600"
+                          : role.color === "teal"
+                            ? "bg-teal-100 text-teal-600"
+                            : role.color === "indigo"
+                              ? "bg-indigo-100 text-indigo-600"
+                              : "bg-gray-100 text-gray-600";
                 return (
                   <Collapsible
                     key={role.id}
@@ -596,7 +635,72 @@ export function Settings() {
                       className="pl-9"
                     />
                   </div>
-                  <Button>Agregar Usuario</Button>
+                  <Dialog open={newUserOpen} onOpenChange={setNewUserOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="gap-2">
+                        <Plus className="w-4 h-4" />
+                        Agregar Usuario
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Nuevo Usuario</DialogTitle>
+                        <DialogDescription>
+                          Agregar un usuario al sistema. Asigna nombre, correo y rol.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                          <Label>Nombre</Label>
+                          <Input
+                            placeholder="Ej: Juan Pérez"
+                            value={newUser.nombre}
+                            onChange={(e) => setNewUser((p) => ({ ...p, nombre: e.target.value }))}
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label>Correo electrónico</Label>
+                          <Input
+                            type="email"
+                            placeholder="usuario@empresa.com"
+                            value={newUser.correo}
+                            onChange={(e) => setNewUser((p) => ({ ...p, correo: e.target.value }))}
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label>Rol</Label>
+                          <Select value={newUser.rol} onValueChange={(v) => setNewUser((p) => ({ ...p, rol: v }))}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {roleNames.map((r) => (
+                                <SelectItem key={r} value={r}>{r}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="grid gap-2">
+                          <Label>Estado</Label>
+                          <Select value={newUser.estado} onValueChange={(v) => setNewUser((p) => ({ ...p, estado: v }))}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Activo">Activo</SelectItem>
+                              <SelectItem value="Inactivo">Inactivo</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button variant="outline" onClick={() => setNewUserOpen(false)}>Cancelar</Button>
+                        <Button onClick={handleAddUser} disabled={!newUser.nombre.trim() || !newUser.correo.trim()}>
+                          Crear Usuario
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </div>
 
@@ -656,9 +760,24 @@ export function Settings() {
                           <Badge variant={user.estado === "Activo" ? "default" : "secondary"}>{user.estado}</Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="sm">
-                            <Eye className="w-4 h-4" />
-                          </Button>
+                          <div className="flex justify-end gap-1">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="sm" onClick={() => setEditUserOpen(user.id)}>
+                                  <Pencil className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Editar usuario</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Ver detalle</TooltipContent>
+                            </Tooltip>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -666,6 +785,61 @@ export function Settings() {
                 </Table>
               )}
             </Card>
+
+            {/* Modal Editar Usuario */}
+            {editingUser && (
+              <Dialog open={!!editUserOpen} onOpenChange={(o) => !o && setEditUserOpen(null)}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Editar Usuario</DialogTitle>
+                    <DialogDescription>
+                      Modificar datos del usuario {editingUser.nombre}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label>Nombre</Label>
+                      <Input defaultValue={editingUser.nombre} />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>Correo</Label>
+                      <Input type="email" defaultValue={editingUser.correo} />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>Rol</Label>
+                      <Select defaultValue={editingUser.rol}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {roleNames.map((r) => (
+                            <SelectItem key={r} value={r}>{r}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>Estado</Label>
+                      <Select defaultValue={editingUser.estado}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Activo">Activo</SelectItem>
+                          <SelectItem value="Inactivo">Inactivo</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setEditUserOpen(null)}>Cancelar</Button>
+                    <Button onClick={() => { setEditUserOpen(null); toast.success("Usuario actualizado"); }}>
+                      Guardar
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            )}
           </TabsContent>
 
           {/* Bitácora de Actividad */}
@@ -774,6 +948,7 @@ export function Settings() {
                         Fecha {auditSortBy === "fecha" && (auditSortDir === "asc" ? "↑" : "↓")}
                       </button>
                     </TableHead>
+                    <TableHead>IP</TableHead>
                     <TableHead>
                       <button
                         className="flex items-center gap-1 hover:underline"
@@ -785,7 +960,6 @@ export function Settings() {
                         Tipo {auditSortBy === "tipo" && (auditSortDir === "asc" ? "↑" : "↓")}
                       </button>
                     </TableHead>
-                    <TableHead>IP</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -795,8 +969,8 @@ export function Settings() {
                       <TableCell>{log.accion}</TableCell>
                       <TableCell className="max-w-md text-gray-600">{log.detalle}</TableCell>
                       <TableCell className="text-gray-600">{log.fecha}</TableCell>
-                      <TableCell>{getActionBadge(log.tipo)}</TableCell>
                       <TableCell className="font-mono text-sm text-gray-500">{log.ip}</TableCell>
+                      <TableCell>{getActionBadge(log.tipo)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -889,33 +1063,6 @@ export function Settings() {
                         </div>
                       ))}
                     </div>
-                    <Dialog open={policyConfigOpen === policy.id} onOpenChange={(o) => setPolicyConfigOpen(o ? policy.id : null)}>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" size="sm" className="mt-4 w-full">
-                          Configurar
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>{policy.title}</DialogTitle>
-                          <DialogDescription>{policy.tooltip}</DialogDescription>
-                        </DialogHeader>
-                        <div className="py-4 space-y-4">
-                          {policy.settings.map((s) => (
-                            <div key={s.label} className="flex items-center justify-between">
-                              <Label>{s.label}</Label>
-                              <Input className="w-40" defaultValue={s.value} />
-                            </div>
-                          ))}
-                        </div>
-                        <DialogFooter>
-                          <Button variant="outline" onClick={() => setPolicyConfigOpen(null)}>Cancelar</Button>
-                          <Button onClick={() => { setPolicyConfigOpen(null); toast.success("Configuración guardada"); }}>
-                            Guardar
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
                   </Card>
                 );
               })}
