@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Search, Plus, Edit, Trash2, Phone, Mail } from "lucide-react";
 import { PageHeader, PageShell } from "../components/PageShell";
+import { PLACEHOLDER_EMAIL, PLACEHOLDER_FULL_NAME } from "../branding";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
@@ -206,7 +207,7 @@ export function Customers() {
                   <Input
                     id="correo"
                     type="email"
-                    placeholder="cliente@email.com"
+                    placeholder={PLACEHOLDER_EMAIL}
                     value={newClient.correo}
                     onChange={(e) =>
                       setNewClient((p) => ({ ...p, correo: e.target.value }))
