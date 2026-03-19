@@ -70,6 +70,7 @@ import {
   CollapsibleTrigger,
 } from "../components/ui/collapsible";
 import { toast } from "sonner";
+import { PageHeader, PageShell } from "../components/PageShell";
 
 type UserRow = {
   id: number;
@@ -429,45 +430,57 @@ export function Settings() {
 
   return (
     <TooltipProvider>
-      <div className="p-8">
-        <div className="mb-8 flex items-start justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Configuración y Seguridad
-            </h1>
-            <p className="text-gray-500 mt-2">
-              Gestiona usuarios, roles, políticas de seguridad y auditoría
-            </p>
-          </div>
+      <PageShell>
+        <div className="mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+          <PageHeader
+            className="mb-0"
+            title="Configuración y Seguridad"
+            description="Gestiona usuarios, roles, políticas de seguridad y auditoría"
+          />
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2">
-                <HelpCircle className="w-4 h-4" />
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full shrink-0 gap-2 sm:w-auto"
+                type="button"
+              >
+                <HelpCircle className="size-4 shrink-0" aria-hidden />
                 ¿Cómo funciona?
               </Button>
             </TooltipTrigger>
             <TooltipContent className="max-w-sm">
-              <p className="font-medium mb-1">Ayuda rápida</p>
-              <p className="text-sm">Usa Ctrl+S para guardar cambios en roles. Los filtros de la bitácora permiten exportar solo lo que necesitas.</p>
+              <p className="mb-1 font-medium">Ayuda rápida</p>
+              <p className="text-sm">
+                Usa Ctrl+S para guardar cambios en roles. Los filtros de la
+                bitácora permiten exportar solo lo que necesitas.
+              </p>
             </TooltipContent>
           </Tooltip>
         </div>
 
         <Tabs defaultValue="usuarios-roles" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="usuarios-roles" className="gap-2">
-              <UserCog className="w-4 h-4" />
-              Usuarios y Roles
-            </TabsTrigger>
-            <TabsTrigger value="auditoria" className="gap-2">
-              <Activity className="w-4 h-4" />
-              Bitácora de Actividad
-            </TabsTrigger>
-            <TabsTrigger value="politicas" className="gap-2">
-              <Lock className="w-4 h-4" />
-              Políticas de Seguridad
-            </TabsTrigger>
-          </TabsList>
+          <div className="-mx-1 overflow-x-auto px-1 pb-1 md:mx-0 md:px-0">
+            <TabsList
+              className="inline-flex h-auto min-h-9 w-max min-w-full flex-nowrap justify-start gap-0.5 p-1 sm:w-fit sm:min-w-0"
+              aria-label="Secciones de configuración"
+            >
+              <TabsTrigger value="usuarios-roles" className="gap-2 px-3 py-2">
+                <UserCog className="size-4 shrink-0" aria-hidden />
+                Usuarios y Roles
+              </TabsTrigger>
+              <TabsTrigger value="auditoria" className="gap-2 px-3 py-2">
+                <Activity className="size-4 shrink-0" aria-hidden />
+                <span className="sm:hidden">Bitácora</span>
+                <span className="hidden sm:inline">Bitácora de Actividad</span>
+              </TabsTrigger>
+              <TabsTrigger value="politicas" className="gap-2 px-3 py-2">
+                <Lock className="size-4 shrink-0" aria-hidden />
+                <span className="sm:hidden">Políticas</span>
+                <span className="hidden sm:inline">Políticas de Seguridad</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Usuarios y Roles */}
           <TabsContent value="usuarios-roles" className="space-y-6">
@@ -1058,7 +1071,7 @@ export function Settings() {
             </div>
           </TabsContent>
         </Tabs>
-      </div>
+      </PageShell>
     </TooltipProvider>
   );
 }

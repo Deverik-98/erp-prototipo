@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Search, Plus, Edit, Trash2, Phone, Mail } from "lucide-react";
+import { PageHeader, PageShell } from "../components/PageShell";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
@@ -135,33 +136,38 @@ export function Customers() {
   );
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Directorio de Clientes
-        </h1>
-        <p className="text-gray-500 mt-2">
-          Gestiona tu base de datos de clientes
-        </p>
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Directorio de Clientes"
+        description="Gestiona tu base de datos de clientes"
+      />
 
-      {/* Search Bar */}
-      <Card className="p-6 mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <Input
-              placeholder="Buscar por nombre, teléfono o correo..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+      <Card className="mb-6 p-4 sm:p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <div className="min-w-0 flex-1">
+            <Label htmlFor="customers-search" className="sr-only">
+              Buscar clientes
+            </Label>
+            <div className="relative">
+              <Search
+                className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-gray-400"
+                aria-hidden
+              />
+              <Input
+                id="customers-search"
+                placeholder="Buscar por nombre, teléfono o correo..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+                autoComplete="off"
+              />
+            </div>
           </div>
 
           <Dialog open={newClientOpen} onOpenChange={setNewClientOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2">
-                <Plus className="w-4 h-4" />
+              <Button className="w-full gap-2 sm:w-auto">
+                <Plus className="size-4 shrink-0" aria-hidden />
                 Nuevo Cliente
               </Button>
             </DialogTrigger>
@@ -224,38 +230,43 @@ export function Customers() {
         </div>
       </Card>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <Card className="p-6">
-          <p className="text-sm text-gray-600 mb-1">Total Clientes</p>
-          <p className="text-3xl font-bold text-gray-900">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5">
+        <Card className="p-4 sm:p-6">
+          <p className="text-sm text-gray-600">Total Clientes</p>
+          <p className="mt-1 text-2xl font-bold text-gray-900 sm:text-3xl">
             {customersData.length}
           </p>
         </Card>
-        <Card className="p-6">
-          <p className="text-sm text-gray-600 mb-1">Clientes Activos (30d)</p>
-          <p className="text-3xl font-bold text-green-600">
+        <Card className="p-4 sm:p-6">
+          <p className="text-sm text-gray-600">Clientes Activos (30d)</p>
+          <p className="mt-1 text-2xl font-bold text-green-600 sm:text-3xl">
             {customersData.filter((c) => c.pedidos > 10).length}
           </p>
         </Card>
-        <Card className="p-6">
-          <p className="text-sm text-gray-600 mb-1">Valor Total Ventas</p>
-          <p className="text-3xl font-bold text-blue-600">$ 86.840</p>
+        <Card className="p-4 sm:p-6">
+          <p className="text-sm text-gray-600">Valor Total Ventas</p>
+          <p className="mt-1 text-2xl font-bold text-blue-600 sm:text-3xl">
+            $ 86.840
+          </p>
         </Card>
       </div>
 
-      {/* Customers Table */}
-      <Card className="p-6">
-        <Table>
+      <Card className="p-4 sm:p-6">
+        <Table className="min-w-[720px]">
+          <caption className="sr-only">
+            Directorio de clientes con contacto y compras
+          </caption>
           <TableHeader>
             <TableRow>
-              <TableHead>Cliente</TableHead>
-              <TableHead>Teléfono (WhatsApp)</TableHead>
-              <TableHead>Correo</TableHead>
-              <TableHead>Pedidos</TableHead>
-              <TableHead>Compras Totales</TableHead>
-              <TableHead>Última Compra</TableHead>
-              <TableHead className="text-right">Acciones</TableHead>
+              <TableHead scope="col">Cliente</TableHead>
+              <TableHead scope="col">Teléfono (WhatsApp)</TableHead>
+              <TableHead scope="col">Correo</TableHead>
+              <TableHead scope="col">Pedidos</TableHead>
+              <TableHead scope="col">Compras Totales</TableHead>
+              <TableHead scope="col">Última Compra</TableHead>
+              <TableHead scope="col" className="text-right">
+                Acciones
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -273,14 +284,18 @@ export function Customers() {
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-green-600" />
-                    <span className="text-gray-700">{customer.telefono}</span>
+                    <Phone className="size-4 shrink-0 text-green-600" aria-hidden />
+                    <span className="break-all text-gray-700">
+                      {customer.telefono}
+                    </span>
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-gray-400" />
-                    <span className="text-gray-700">{customer.correo}</span>
+                    <Mail className="size-4 shrink-0 text-gray-400" aria-hidden />
+                    <span className="break-all text-gray-700">
+                      {customer.correo}
+                    </span>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -293,12 +308,24 @@ export function Customers() {
                   {customer.ultimaCompra}
                 </TableCell>
                 <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button variant="ghost" size="sm">
-                      <Edit className="w-4 h-4" />
+                  <div className="flex justify-end gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-9 shrink-0"
+                      type="button"
+                      aria-label={`Editar cliente ${customer.cliente}`}
+                    >
+                      <Edit className="size-4" aria-hidden />
                     </Button>
-                    <Button variant="ghost" size="sm">
-                      <Trash2 className="w-4 h-4 text-red-600" />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-9 shrink-0 text-red-600 hover:text-red-700"
+                      type="button"
+                      aria-label={`Eliminar cliente ${customer.cliente}`}
+                    >
+                      <Trash2 className="size-4" aria-hidden />
                     </Button>
                   </div>
                 </TableCell>
@@ -308,13 +335,13 @@ export function Customers() {
         </Table>
 
         {filteredCustomers.length === 0 && (
-          <div className="text-center py-12">
+          <div className="py-12 text-center">
             <p className="text-gray-500">
               No se encontraron clientes con los criterios de búsqueda
             </p>
           </div>
         )}
       </Card>
-    </div>
+    </PageShell>
   );
 }

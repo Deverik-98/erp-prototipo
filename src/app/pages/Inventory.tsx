@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Search, Filter, Upload, Plus, Edit, Trash2, FileSpreadsheet } from "lucide-react";
+import { PageHeader, PageShell } from "../components/PageShell";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
+import { Label } from "../components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -136,32 +138,40 @@ export function Inventory() {
   });
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Gestión de Inventario
-        </h1>
-        <p className="text-gray-500 mt-2">
-          Administra tus productos y materias primas
-        </p>
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Gestión de Inventario"
+        description="Administra tus productos y materias primas"
+      />
 
-      {/* Search and Filters */}
-      <Card className="p-6 mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <Input
-              placeholder="Buscar por nombre o SKU..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+      <Card className="mb-6 p-4 sm:p-6">
+        <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:flex-wrap lg:items-end">
+          <div className="min-w-0 flex-1 lg:min-w-[200px]">
+            <Label htmlFor="inventory-search" className="sr-only">
+              Buscar por nombre o SKU
+            </Label>
+            <div className="relative">
+              <Search
+                className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-gray-400"
+                aria-hidden
+              />
+              <Input
+                id="inventory-search"
+                placeholder="Buscar por nombre o SKU..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+                autoComplete="off"
+              />
+            </div>
           </div>
 
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-full md:w-[200px]">
-              <Filter className="w-4 h-4 mr-2" />
+            <SelectTrigger
+              className="w-full lg:w-[200px]"
+              aria-label="Filtrar por categoría"
+            >
+              <Filter className="mr-2 size-4 shrink-0" aria-hidden />
               <SelectValue placeholder="Categoría" />
             </SelectTrigger>
             <SelectContent>
@@ -174,9 +184,9 @@ export function Inventory() {
 
           <Dialog open={importOpen} onOpenChange={setImportOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="gap-2">
-                <Upload className="w-4 h-4" />
-                Importación Masiva (Excel)
+              <Button variant="outline" className="w-full gap-2 sm:w-auto">
+                <Upload className="size-4 shrink-0" aria-hidden />
+                <span className="truncate">Importación Masiva (Excel)</span>
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -206,26 +216,30 @@ export function Inventory() {
             </DialogContent>
           </Dialog>
 
-          <Button className="gap-2">
-            <Plus className="w-4 h-4" />
+          <Button className="w-full gap-2 sm:w-auto">
+            <Plus className="size-4 shrink-0" aria-hidden />
             Nuevo Producto
           </Button>
         </div>
       </Card>
 
-      {/* Inventory Table */}
-      <Card className="p-6">
-        <Table>
+      <Card className="p-4 sm:p-6">
+        <Table className="min-w-[800px]">
+          <caption className="sr-only">
+            Listado de productos con stock, precios y acciones
+          </caption>
           <TableHeader>
             <TableRow>
-              <TableHead>Nombre</TableHead>
-              <TableHead>SKU</TableHead>
-              <TableHead>Categoría</TableHead>
-              <TableHead>Costo</TableHead>
-              <TableHead>Precio</TableHead>
-              <TableHead>Stock Actual</TableHead>
-              <TableHead>Stock Mínimo</TableHead>
-              <TableHead className="text-right">Acciones</TableHead>
+              <TableHead scope="col">Nombre</TableHead>
+              <TableHead scope="col">SKU</TableHead>
+              <TableHead scope="col">Categoría</TableHead>
+              <TableHead scope="col">Costo</TableHead>
+              <TableHead scope="col">Precio</TableHead>
+              <TableHead scope="col">Stock Actual</TableHead>
+              <TableHead scope="col">Stock Mínimo</TableHead>
+              <TableHead scope="col" className="text-right">
+                Acciones
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -256,12 +270,24 @@ export function Inventory() {
                     {item.stockMinimo}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="sm">
-                        <Edit className="w-4 h-4" />
+                    <div className="flex justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-9 shrink-0"
+                        aria-label={`Editar ${item.nombre}`}
+                        type="button"
+                      >
+                        <Edit className="size-4" aria-hidden />
                       </Button>
-                      <Button variant="ghost" size="sm">
-                        <Trash2 className="w-4 h-4 text-red-600" />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-9 shrink-0 text-red-600 hover:text-red-700"
+                        aria-label={`Eliminar ${item.nombre}`}
+                        type="button"
+                      >
+                        <Trash2 className="size-4" aria-hidden />
                       </Button>
                     </div>
                   </TableCell>
@@ -272,13 +298,13 @@ export function Inventory() {
         </Table>
 
         {filteredData.length === 0 && (
-          <div className="text-center py-12">
+          <div className="py-12 text-center">
             <p className="text-gray-500">
               No se encontraron productos con los criterios seleccionados
             </p>
           </div>
         )}
       </Card>
-    </div>
+    </PageShell>
   );
 }
