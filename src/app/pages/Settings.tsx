@@ -161,9 +161,6 @@ const initialRoles: RoleConfig[] = [
   { id: "admin", name: "Administrador", description: "Control total del sistema. Puede gestionar usuarios, roles, inventario, ventas y configuración. Acceso jerárquico máximo.", color: "purple", icon: Shield, permissions: permissions.map((p) => p.id) },
   { id: "cajero", name: "Cajero", description: "Operación de punto de venta y atención a clientes. Acceso limitado a ventas, consulta de inventario y directorio de clientes.", color: "blue", icon: UserCog, permissions: ["ventas", "clientes"] },
   { id: "supervisor", name: "Supervisor", description: "Supervisa operaciones de venta e inventario. Puede ver reportes y gestionar clientes.", color: "green", icon: UserCog, permissions: ["ventas", "inventario", "clientes", "reportes"] },
-  { id: "contador", name: "Contador", description: "Acceso a reportes financieros y auditoría. No modifica inventario ni ventas.", color: "amber", icon: UserCog, permissions: ["reportes"] },
-  { id: "almacen", name: "Almacén", description: "Gestión de inventario y stock. No accede a ventas ni configuración.", color: "teal", icon: UserCog, permissions: ["inventario"] },
-  { id: "vendedor", name: "Vendedor", description: "Registra ventas y consulta clientes. Acceso limitado al punto de venta.", color: "indigo", icon: UserCog, permissions: ["ventas", "clientes"] },
 ];
 
 type PolicyConfig = {
@@ -172,7 +169,6 @@ type PolicyConfig = {
   description: string;
   tooltip: string;
   icon: typeof Lock;
-  level: "bajo" | "medio" | "alto";
   settings: { label: string; value: string; tooltip?: string; recommended?: boolean }[];
 };
 
@@ -180,10 +176,9 @@ const securityPolicies: PolicyConfig[] = [
   {
     id: "password",
     title: "Política de Contraseñas",
-    description: "Configuración de requisitos y expiración",
+    description: "Requisitos y expiración de contraseñas",
     tooltip: "Define la longitud mínima, tiempo de expiración y bloqueo tras intentos fallidos.",
     icon: Lock,
-    level: "alto",
     settings: [
       { label: "Longitud mínima", value: "8 caracteres", tooltip: "Mínimo recomendado para seguridad", recommended: true },
       { label: "Expiración", value: "90 días", tooltip: "Fuerza cambio periódico de contraseña" },
@@ -193,14 +188,13 @@ const securityPolicies: PolicyConfig[] = [
   {
     id: "sessions",
     title: "Sesiones y Accesos",
-    description: "Control de sesiones simultáneas y tiempo de inactividad",
-    tooltip: "Limita sesiones concurrentes y cierra automáticamente tras inactividad.",
+    description: "Control de sesiones y tiempo de inactividad",
+    tooltip: "Limita sesiones concurrentes (ej. PC + celular) y cierra automáticamente tras inactividad.",
     icon: Shield,
-    level: "medio",
     settings: [
-      { label: "Sesiones simultáneas", value: "2 por usuario" },
+      { label: "Sesiones simultáneas", value: "2 por usuario", tooltip: "Permite usar el sistema en dos dispositivos a la vez (ej. escritorio y móvil)" },
       { label: "Timeout inactividad", value: "30 minutos", recommended: true },
-      { label: "Bloqueo temporal", value: "15 minutos" },
+      { label: "Bloqueo temporal", value: "15 minutos", tooltip: "Tiempo de bloqueo tras reintentos fallidos" },
     ],
   },
   {
@@ -209,7 +203,6 @@ const securityPolicies: PolicyConfig[] = [
     description: "Registro y retención de eventos",
     tooltip: "Configura cuánto tiempo se conservan los logs y qué información se registra.",
     icon: FileText,
-    level: "alto",
     settings: [
       { label: "Retención de logs", value: "365 días", recommended: true },
       { label: "Registro de IP", value: "Habilitado" },
@@ -535,11 +528,9 @@ export function Settings() {
               </Dialog>
             </div>
 
-            {/* Acordeón de Roles - scroll interno si hay más de 5 */}
+            {/* Acordeón de Roles - borde y scroll solo si hay más de 5 */}
             <div
-              className={`space-y-2 rounded-lg border bg-gray-50/50 ${
-                roles.length > 5 ? "max-h-[400px] overflow-y-auto p-2" : ""
-              }`}
+              className={`space-y-2 ${roles.length > 5 ? "max-h-[400px] overflow-y-auto rounded-lg border border-gray-200 bg-gray-50/50 p-2" : ""}`}
             >
               {roles.map((role) => {
                 const Icon = role.icon;
@@ -1012,10 +1003,12 @@ export function Settings() {
 
           {/* Políticas de Seguridad */}
           <TabsContent value="politicas" className="space-y-6">
+            <p className="text-sm text-gray-600">
+              Reglas de seguridad aplicadas al sistema. Estas políticas protegen el acceso y registran la actividad.
+            </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {securityPolicies.map((policy) => {
                 const Icon = policy.icon;
-                const levelColors = { bajo: "bg-green-100 text-green-700", medio: "bg-amber-100 text-amber-700", alto: "bg-red-100 text-red-700" };
                 return (
                   <Card key={policy.id} className="p-6">
                     <div className="flex items-start gap-3 mb-4">
@@ -1023,12 +1016,7 @@ export function Settings() {
                         <Icon className="w-5 h-5 text-gray-600" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h4 className="font-semibold">{policy.title}</h4>
-                          <Badge variant="outline" className={`text-xs ${levelColors[policy.level]}`}>
-                            {policy.level === "alto" ? "Alta seguridad" : policy.level === "medio" ? "Media" : "Baja"}
-                          </Badge>
-                        </div>
+                        <h4 className="font-semibold">{policy.title}</h4>
                         <p className="text-sm text-gray-500 mt-1">{policy.description}</p>
                         <Tooltip>
                           <TooltipTrigger asChild>
