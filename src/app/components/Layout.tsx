@@ -110,21 +110,26 @@ export function Layout() {
         Saltar al contenido principal
       </a>
 
-      {/* Barra superior móvil */}
-      <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center gap-3 border-b border-gray-200 bg-white px-4 lg:hidden">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="size-10 shrink-0"
-          onClick={() => setMobileOpen(true)}
-          aria-expanded={mobileOpen}
-          aria-controls="mobile-navigation"
-          aria-label="Abrir menú de navegación"
-        >
-          <Menu className="size-5" aria-hidden />
-        </Button>
-        <BrandTitle className="flex-1" />
+      {/* Barra superior móvil: marca centrada (espaciador = ancho del botón menú) */}
+      <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center border-b border-gray-200 bg-white px-3 sm:px-4 lg:hidden">
+        <div className="flex w-10 shrink-0 items-center justify-start">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-10 shrink-0"
+            onClick={() => setMobileOpen(true)}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-navigation"
+            aria-label="Abrir menú de navegación"
+          >
+            <Menu className="size-5" aria-hidden />
+          </Button>
+        </div>
+        <div className="flex min-w-0 flex-1 items-center justify-center px-1">
+          <BrandTitle className="min-w-0 [&>div]:text-center" />
+        </div>
+        <div className="w-10 shrink-0" aria-hidden="true" />
       </header>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
