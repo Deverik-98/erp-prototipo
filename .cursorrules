@@ -1,0 +1,78 @@
+# ERP Argentina - Prototipo Funcional
+
+## Contexto del Proyecto
+
+Este es un **prototipo funcional frontend** de un ERP B2B SaaS para digitalizar PyMEs (productores lácteos, comercios minoristas) que hoy operan con Excel y pedidos por WhatsApp. El objetivo es tener una demo visual funcional para mostrar a intermediarios que ayudarán a vender el software a clientes finales.
+
+**Alcance actual:** Solo frontend. Sin backend ni persistencia real. Los datos son mock/placeholder.
+
+---
+
+## Audiencia y UX
+
+- **Usuarios:** Dueños de negocio y personal administrativo, poco técnicos.
+- **Interfaz:** Simple, intuitiva, rápida. Reemplaza flujos manuales de Excel.
+- **Idioma:** TODO el UI en español (sidebar, botones, tablas, labels, placeholders).
+- **Tipo:** Dashboard / aplicación web interna. NO landing de marketing.
+
+---
+
+## Estructura de Páginas (Sidebar Persistente)
+
+1. **Panel de Control (Dashboard):** Métricas financieras y operativas. Cards: Ventas del Día, Gastos Totales, Alertas de Bajo Stock. Tabla "Últimos Pedidos".
+
+2. **Inventario:** Gestión de productos e insumos. Búsqueda, filtros, botón "Importación Masiva (Excel)". Tabla: Nombre, SKU, Categoría, Costo, Precio, Stock Actual, Stock Mínimo.
+
+3. **Punto de Venta:** Interfaz rápida para registrar pedidos tipo WhatsApp. Buscar/seleccionar cliente, buscar/agregar productos al carrito, campo descuento, método de pago, botón "Procesar Venta".
+
+4. **Clientes:** Directorio que reemplaza la lista Excel. Tabla: Cliente, Teléfono (WhatsApp), Correo, Compras Totales. Botón "Nuevo Cliente".
+
+5. **Configuración:** Administración. Tabs: Roles de Usuario (Admin, Cajero), Bitácora de Actividad (auditoría de cambios/eliminaciones).
+
+---
+
+## Contexto del Negocio (Cliente Lácteo)
+
+- **Producción:** Proyección según litros de leche y pedidos estables. Control manual de lotes en planilla Excel.
+- **Ventas:** Pedidos por WhatsApp los lunes. Distribuidores avisan extras. Lista de clientes en Excel.
+- **Administración:** Control de stock junto a producción. Pocos proveedores, mínimos de insumos. Facturación no conectada a ventas.
+- **Marketing:** Consultas por web/redes desde administración, WhatsApp y mail.
+
+---
+
+## Stack Técnico
+
+- React + Vite + TypeScript
+- Tailwind CSS + Radix UI (shadcn/ui)
+- React Router
+- Base path para GitHub Pages: `/erp-prototipo/`
+
+---
+
+## Git Flow
+
+- **main:** Código estable listo para producción/demo. Solo merges desde develop o hotfix.
+- **develop:** Rama de integración. Todas las features se integran aquí.
+- **feature/*:** Nuevas funcionalidades (ej: `feature/importacion-excel`).
+- **hotfix/*:** Correcciones urgentes en main.
+- **release/*:** Preparación de releases (opcional para prototipo).
+
+Flujo: crear rama desde develop → trabajar → merge a develop → cuando esté listo, merge develop → main.
+
+---
+
+## Convenciones de Código
+
+- Componentes funcionales con hooks.
+- Rutas en `src/app/routes.ts`, páginas en `src/app/pages/`.
+- Componentes UI reutilizables en `src/app/components/ui/`.
+- Datos mock inline o en constantes por página hasta que exista backend.
+- Mantener coherencia con el diseño actual (Layout, sidebar, cards, tablas).
+
+---
+
+## Despliegue
+
+- GitHub Pages: `https://deverik-98.github.io/erp-prototipo/`
+- Workflow en `.github/workflows/deploy.yml` (build + deploy en push a main).
+- No incluir secrets ni config de backend; es solo frontend estático.
