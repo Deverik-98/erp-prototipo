@@ -1,11 +1,69 @@
+# ERP Argentina - Prototipo Funcional
 
-  # Sin título
+Prototipo frontend de un ERP B2B SaaS para digitalizar PyMEs (productores lácteos, comercios minoristas) que operan con Excel y pedidos por WhatsApp.
 
-  This is a code bundle for Sin título. The original project is available at https://www.figma.com/design/gh5o3FBwVdF3hiGp9PefN0/Sin-t%C3%ADtulo.
+## Descripción
 
-  ## Running the code
+Aplicación web interna con panel de control, inventario, punto de venta, directorio de clientes y configuración. Diseñada para dueños de negocio y personal administrativo con interfaces simples e intuitivas.
 
-  Run `npm i` to install the dependencies.
+**Alcance:** Solo frontend. Sin backend. Datos mock/placeholder para demostración.
 
-  Run `npm run dev` to start the development server.
-  
+## Páginas
+
+- **Panel de Control:** Métricas (Ventas del Día, Gastos, Alertas de Stock), tabla de últimos pedidos
+- **Inventario:** Productos e insumos, búsqueda, filtros, importación masiva (simulada)
+- **Punto de Venta:** Registro de pedidos tipo WhatsApp, carrito, descuentos, métodos de pago
+- **Clientes:** Directorio con búsqueda, alta de nuevos clientes
+- **Configuración:** Roles (Admin, Cajero), bitácora de actividad
+
+## Requisitos
+
+- Node.js 18+
+- npm
+
+## Instalación
+
+```bash
+npm install
+```
+
+## Ejecución local
+
+```bash
+npm run dev
+```
+
+Abre [http://localhost:5173/erp-prototipo/](http://localhost:5173/erp-prototipo/) en el navegador.
+
+## Build para producción
+
+```bash
+npm run build
+```
+
+Los archivos se generan en `dist/`.
+
+## Despliegue
+
+El proyecto se despliega en **GitHub Pages** automáticamente al hacer push a la rama `main`.
+
+**Demo online:** [https://deverik-98.github.io/erp-prototipo/](https://deverik-98.github.io/erp-prototipo/)
+
+## Stack
+
+- React 18 + TypeScript
+- Vite 6
+- Tailwind CSS
+- Radix UI (shadcn/ui)
+- React Router
+- Sonner (toasts)
+
+## Git Flow
+
+- `main` — Código estable para demo
+- `develop` — Integración de features
+- `feature/*` — Nuevas funcionalidades
+
+## Licencia
+
+Proyecto privado. Uso interno y demostración.
