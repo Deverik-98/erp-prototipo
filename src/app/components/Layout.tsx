@@ -102,7 +102,7 @@ export function Layout() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 lg:h-screen lg:max-h-screen lg:overflow-hidden">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-blue-600 focus:px-4 focus:py-3 focus:text-sm focus:font-medium focus:text-white focus:shadow-lg"
@@ -110,21 +110,26 @@ export function Layout() {
         Saltar al contenido principal
       </a>
 
-      {/* Barra superior móvil */}
-      <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center gap-3 border-b border-gray-200 bg-white px-4 lg:hidden">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="size-10 shrink-0"
-          onClick={() => setMobileOpen(true)}
-          aria-expanded={mobileOpen}
-          aria-controls="mobile-navigation"
-          aria-label="Abrir menú de navegación"
-        >
-          <Menu className="size-5" aria-hidden />
-        </Button>
-        <BrandTitle className="flex-1" />
+      {/* Barra superior móvil: marca centrada (espaciador = ancho del botón menú) */}
+      <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center border-b border-gray-200 bg-white px-3 sm:px-4 lg:hidden">
+        <div className="flex w-10 shrink-0 items-center justify-start">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-10 shrink-0"
+            onClick={() => setMobileOpen(true)}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-navigation"
+            aria-label="Abrir menú de navegación"
+          >
+            <Menu className="size-5" aria-hidden />
+          </Button>
+        </div>
+        <div className="flex min-w-0 flex-1 items-center justify-center px-1">
+          <BrandTitle className="min-w-0 [&>div]:text-center" />
+        </div>
+        <div className="w-10 shrink-0" aria-hidden="true" />
       </header>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -162,12 +167,12 @@ export function Layout() {
         </SheetContent>
       </Sheet>
 
-      {/* Sidebar escritorio */}
+      {/* Sidebar escritorio: alto fijo al viewport; sin scroll de página en el lateral */}
       <aside
-        className="hidden w-64 shrink-0 flex-col border-r border-gray-200 bg-white lg:flex"
+        className="hidden h-full min-h-0 w-64 shrink-0 flex-col overflow-hidden border-r border-gray-200 bg-white lg:flex"
         aria-label="Barra lateral"
       >
-        <div className="border-b border-gray-200 p-6">
+        <div className="shrink-0 border-b border-gray-200 p-6">
           <div className="flex items-center gap-3">
             <img
               src={logoUrl()}
@@ -202,7 +207,7 @@ export function Layout() {
 
       <main
         id="main-content"
-        className="min-h-screen flex-1 overflow-x-hidden overflow-y-auto pt-14 lg:pt-0"
+        className="min-h-screen flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain pt-14 lg:min-h-0 lg:pt-0"
         tabIndex={-1}
       >
         <Outlet />
