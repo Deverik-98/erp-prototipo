@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Search, Plus, Trash2, ShoppingCart } from "lucide-react";
+import { PageHeader, PageShell } from "../components/PageShell";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
@@ -43,7 +44,7 @@ export function PointOfSale() {
   const [discount, setDiscount] = useState("0");
   const [paymentMethod, setPaymentMethod] = useState("");
 
-  const addToCart = (product: typeof products[0]) => {
+  const addToCart = (product: (typeof products)[0]) => {
     const existingItem = cart.find((item) => item.id === product.id);
     if (existingItem) {
       setCart(
@@ -56,7 +57,12 @@ export function PointOfSale() {
     } else {
       setCart([
         ...cart,
-        { id: product.id, name: product.name, price: product.price, quantity: 1 },
+        {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          quantity: 1,
+        },
       ]);
     }
     setSearchProduct("");
@@ -112,183 +118,209 @@ export function PointOfSale() {
   };
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Punto de Venta</h1>
-        <p className="text-gray-500 mt-2">
-          Registra pedidos entrantes de WhatsApp
-        </p>
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Punto de Venta"
+        description="Registra pedidos entrantes de WhatsApp"
+      />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Section - Product Selection */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Customer Selection */}
-          <Card className="p-6">
-            <Label className="text-base font-semibold mb-3 block">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
+          <Card className="p-4 sm:p-6">
+            <Label htmlFor="pos-customer" className="mb-3 block text-base font-semibold">
               Seleccionar Cliente
             </Label>
             <Select value={selectedCustomer} onValueChange={setSelectedCustomer}>
-              <SelectTrigger>
+              <SelectTrigger id="pos-customer" className="w-full">
                 <SelectValue placeholder="Buscar o seleccionar cliente..." />
               </SelectTrigger>
               <SelectContent>
                 {customers.map((customer) => (
                   <SelectItem key={customer.id} value={customer.id.toString()}>
-                    {customer.name} - {customer.phone}
+                    {customer.name} — {customer.phone}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </Card>
 
-          {/* Product Search */}
-          <Card className="p-6">
-            <Label className="text-base font-semibold mb-3 block">
+          <Card className="p-4 sm:p-6">
+            <Label htmlFor="pos-product-search" className="mb-3 block text-base font-semibold">
               Agregar Productos
             </Label>
             <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search
+                className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-gray-400"
+                aria-hidden
+              />
               <Input
+                id="pos-product-search"
                 placeholder="Buscar producto por nombre..."
                 value={searchProduct}
                 onChange={(e) => setSearchProduct(e.target.value)}
                 className="pl-10"
+                autoComplete="off"
               />
             </div>
 
             {searchProduct && filteredProducts.length > 0 && (
-              <div className="border rounded-lg divide-y max-h-64 overflow-y-auto">
+              <ul
+                className="max-h-64 divide-y overflow-y-auto rounded-lg border"
+                role="listbox"
+                aria-label="Resultados de búsqueda de productos"
+              >
                 {filteredProducts.map((product) => (
-                  <div
-                    key={product.id}
-                    className="p-3 hover:bg-gray-50 cursor-pointer flex items-center justify-between"
-                    onClick={() => addToCart(product)}
-                  >
-                    <div>
-                      <p className="font-medium">{product.name}</p>
-                      <p className="text-sm text-gray-500">
-                        $ {product.price} · Stock: {product.stock}
-                      </p>
-                    </div>
-                    <Plus className="w-5 h-5 text-blue-600" />
-                  </div>
+                  <li key={product.id}>
+                    <button
+                      type="button"
+                      className="flex w-full items-center justify-between gap-3 p-3 text-left transition-colors hover:bg-gray-50 focus-visible:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
+                      onClick={() => addToCart(product)}
+                      aria-label={`Agregar ${product.name} al carrito, precio ${product.price} pesos, stock ${product.stock}`}
+                    >
+                      <div className="min-w-0">
+                        <p className="font-medium">{product.name}</p>
+                        <p className="text-sm text-gray-500">
+                          $ {product.price} · Stock: {product.stock}
+                        </p>
+                      </div>
+                      <Plus className="size-5 shrink-0 text-blue-600" aria-hidden />
+                    </button>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
           </Card>
 
-          {/* Cart */}
-          <Card className="p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <ShoppingCart className="w-5 h-5 text-gray-700" />
-              <h3 className="text-lg font-semibold">Carrito de Compra</h3>
+          <Card className="p-4 sm:p-6">
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <ShoppingCart className="size-5 text-gray-700" aria-hidden />
+              <h2 className="text-lg font-semibold">Carrito de Compra</h2>
               <Badge variant="secondary" className="ml-auto">
                 {cart.length} productos
               </Badge>
             </div>
 
             {cart.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
-                <ShoppingCart className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <div className="py-12 text-center text-gray-500">
+                <ShoppingCart className="mx-auto mb-3 size-12 text-gray-300" aria-hidden />
                 <p>El carrito está vacío</p>
-                <p className="text-sm mt-1">
+                <p className="mt-1 text-sm">
                   Busca y agrega productos para comenzar
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <ul className="space-y-3" aria-label="Productos en el carrito">
                 {cart.map((item) => (
-                  <div
+                  <li
                     key={item.id}
-                    className="flex items-center gap-4 p-3 border rounded-lg"
+                    className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:gap-4"
                   >
-                    <div className="flex-1">
+                    <div className="min-w-0 flex-1">
                       <p className="font-medium">{item.name}</p>
                       <p className="text-sm text-gray-500">$ {item.price}</p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between gap-3 sm:justify-end">
+                      <div className="flex items-center gap-1">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          className="size-9"
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity - 1)
+                          }
+                          aria-label={`Disminuir cantidad de ${item.name}`}
+                        >
+                          <span aria-hidden>−</span>
+                        </Button>
+                        <span className="min-w-8 text-center font-medium">
+                          {item.quantity}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          className="size-9"
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity + 1)
+                          }
+                          aria-label={`Aumentar cantidad de ${item.name}`}
+                        >
+                          <span aria-hidden>+</span>
+                        </Button>
+                      </div>
+                      <p className="font-semibold sm:w-24 sm:text-right">
+                        $ {(item.price * item.quantity).toLocaleString("es-AR")}
+                      </p>
                       <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          updateQuantity(item.id, item.quantity - 1)
-                        }
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="size-9 shrink-0 text-red-600"
+                        onClick={() => removeFromCart(item.id)}
+                        aria-label={`Eliminar ${item.name} del carrito`}
                       >
-                        -
-                      </Button>
-                      <span className="w-8 text-center font-medium">
-                        {item.quantity}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          updateQuantity(item.id, item.quantity + 1)
-                        }
-                      >
-                        +
+                        <Trash2 className="size-4" aria-hidden />
                       </Button>
                     </div>
-                    <p className="font-semibold w-20 text-right">
-                      $ {(item.price * item.quantity).toLocaleString("es-AR")}
-                    </p>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeFromCart(item.id)}
-                    >
-                      <Trash2 className="w-4 h-4 text-red-600" />
-                    </Button>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
           </Card>
         </div>
 
-        {/* Right Section - Payment Summary */}
-        <div className="space-y-6">
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Resumen de Pago</h3>
+        <div className="lg:sticky lg:top-4 lg:self-start">
+          <Card className="p-4 sm:p-6">
+            <h2 className="mb-4 text-lg font-semibold">Resumen de Pago</h2>
 
-            <div className="space-y-3 mb-6">
-              <div className="flex justify-between">
+            <div className="mb-6 space-y-3">
+              <div className="flex justify-between gap-4">
                 <span className="text-gray-600">Subtotal:</span>
-                <span className="font-medium">$ {subtotal.toLocaleString("es-AR")}</span>
+                <span className="font-medium tabular-nums">
+                  $ {subtotal.toLocaleString("es-AR")}
+                </span>
               </div>
 
               <div>
-                <Label className="text-sm mb-2 block">Descuento (%)</Label>
+                <Label htmlFor="pos-discount" className="mb-2 block text-sm">
+                  Descuento (%)
+                </Label>
                 <Input
+                  id="pos-discount"
                   type="number"
+                  inputMode="decimal"
                   value={discount}
                   onChange={(e) => setDiscount(e.target.value)}
                   placeholder="0"
-                  min="0"
-                  max="100"
+                  min={0}
+                  max={100}
                 />
               </div>
 
               {discountAmount > 0 && (
-                <div className="flex justify-between text-green-600">
+                <div className="flex justify-between gap-4 text-green-600">
                   <span>Descuento:</span>
-                  <span>- $ {discountAmount.toLocaleString("es-AR")}</span>
+                  <span className="tabular-nums">
+                    - $ {discountAmount.toLocaleString("es-AR")}
+                  </span>
                 </div>
               )}
 
-              <div className="border-t pt-3 flex justify-between text-lg">
+              <div className="flex justify-between gap-4 border-t pt-3 text-lg">
                 <span className="font-semibold">Total:</span>
-                <span className="font-bold text-blue-600">
+                <span className="font-bold text-blue-600 tabular-nums">
                   $ {total.toLocaleString("es-AR")}
                 </span>
               </div>
             </div>
 
             <div className="mb-6">
-              <Label className="text-sm mb-2 block">Método de Pago</Label>
+              <Label htmlFor="pos-payment" className="mb-2 block text-sm">
+                Método de Pago
+              </Label>
               <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                <SelectTrigger>
+                <SelectTrigger id="pos-payment" className="w-full">
                   <SelectValue placeholder="Seleccionar método..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -301,7 +333,8 @@ export function PointOfSale() {
             </div>
 
             <Button
-              className="w-full"
+              type="button"
+              className="w-full min-h-11"
               size="lg"
               onClick={handleProcessSale}
               disabled={cart.length === 0}
@@ -311,6 +344,6 @@ export function PointOfSale() {
           </Card>
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 }
