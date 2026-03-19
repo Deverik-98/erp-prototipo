@@ -10,7 +10,7 @@ Aplicación web interna con panel de control, inventario, punto de venta, direct
 
 ## Páginas
 
-- **Panel de Control:** Métricas (Ventas del Día, Gastos, Alertas de Stock), tabla de últimos pedidos
+- **Panel de Control:** Saludo, métrica principal (ventas del día), KPIs operativos, accesos rápidos, últimos pedidos (tabla en desktop / tarjetas en móvil)
 - **Inventario:** Productos e insumos, búsqueda, filtros, importación masiva (simulada)
 - **Punto de Venta:** Registro de pedidos tipo WhatsApp, carrito, descuentos, métodos de pago
 - **Clientes:** Directorio con búsqueda, alta de nuevos clientes
