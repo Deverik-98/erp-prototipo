@@ -207,7 +207,7 @@ export function Layout() {
 
       <main
         id="main-content"
-        className="min-h-screen flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain pt-14 lg:min-h-0 lg:pt-0"
+        className="min-h-screen min-w-0 flex-1 overflow-x-hidden pt-14 lg:min-h-0 lg:overflow-y-auto lg:overscroll-y-contain lg:pt-0"
         tabIndex={-1}
       >
         <Outlet />
