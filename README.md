@@ -10,7 +10,7 @@ Aplicación web interna con panel de control, inventario, punto de venta, direct
 
 ## Páginas
 
-- **Panel de Control:** Resumen del día → barra de accesos compacta → inventario + informe mensual (columnas `items-start`) → indicadores → gráficos colapsables → pedidos
+- **Inicio (dashboard):** Cabecera en dos columnas (contexto sucursal) → resumen del día → accesos → bloque 60/40 (stock crítico | reporte mensual + KPIs compactos) → gráficos colapsables → pedidos
 - **Inventario:** Productos e insumos, búsqueda, filtros, importación masiva (simulada)
 - **Punto de Venta:** Registro de pedidos tipo WhatsApp, carrito, descuentos, métodos de pago
 - **Clientes:** Directorio con búsqueda, alta de nuevos clientes

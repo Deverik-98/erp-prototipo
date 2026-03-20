@@ -1,7 +1,5 @@
 import { Link } from "react-router";
 import {
-  TrendingUp,
-  TrendingDown,
   AlertCircle,
   ShoppingCart,
   Package,
@@ -11,7 +9,7 @@ import {
   ArrowRight,
   Info,
 } from "lucide-react";
-import { PageHeader, PageShell } from "../components/PageShell";
+import { PageShell } from "../components/PageShell";
 import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import {
@@ -23,11 +21,12 @@ import {
   TableRow,
 } from "../components/ui/table";
 import { Badge } from "../components/ui/badge";
-import { SESSION_DISPLAY_NAME } from "../branding";
 import { MonthlyReportCard } from "../components/dashboard/MonthlyReportCard";
 import { CriticalStockCard } from "../components/dashboard/CriticalStockCard";
 import { BusinessSummaryCard } from "../components/dashboard/BusinessSummaryCard";
 import { DashboardVisualAnalysis } from "../components/dashboard/DashboardVisualAnalysis";
+import { DashboardHeroHeader } from "../components/dashboard/DashboardHeroHeader";
+import { CompactPeriodKpis } from "../components/dashboard/CompactPeriodKpis";
 
 const LOW_STOCK_COUNT = 7;
 const PEDIDOS_HOY = 8;
@@ -177,15 +176,7 @@ export function Dashboard() {
         </span>
       </p>
 
-      <p className="mb-1 text-sm text-gray-600">
-        Hola,{" "}
-        <span className="font-semibold text-gray-900">{SESSION_DISPLAY_NAME}</span>
-      </p>
-
-      <PageHeader
-        title="Panel de control"
-        description={`Vista operativa · ${dateStr}`}
-      />
+      <DashboardHeroHeader dateLong={dateStr} syncStamp={summaryStamp} />
 
       <section aria-labelledby="dash-summary" className="mb-6 sm:mb-8">
         <h2 id="dash-summary" className="sr-only">
@@ -234,62 +225,16 @@ export function Dashboard() {
           id="dash-inventory-month"
           className="mb-3 text-sm font-semibold text-gray-900"
         >
-          Inventario e informe del mes
+          Inventario y contexto del mes
         </h2>
-        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2 lg:gap-6">
-          <CriticalStockCard />
-          <MonthlyReportCard />
-        </div>
-      </section>
-
-      <section aria-labelledby="dash-kpis" className="mb-6 sm:mb-8">
-        <h2 id="dash-kpis" className="mb-3 text-sm font-semibold text-gray-900">
-          Indicadores
-        </h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-          {secondaryKpis.map((card) => {
-            const Icon = card.icon;
-            const regionId = `kpi-${card.id}`;
-            return (
-              <Card
-                key={card.id}
-                role="region"
-                aria-labelledby={regionId}
-                className="flex flex-col p-4"
-              >
-                <div className="flex flex-1 items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p id={regionId} className="text-sm text-gray-600">
-                      {card.title}
-                    </p>
-                    <p className="mt-0.5 text-xl font-bold tabular-nums text-gray-900 sm:text-2xl">
-                      {card.value}
-                    </p>
-                    <div className="mt-1.5 flex items-start gap-1">
-                      {card.trend === "up" && (
-                        <TrendingUp
-                          className="mt-0.5 size-4 shrink-0 text-green-600"
-                          aria-hidden
-                        />
-                      )}
-                      {card.trend === "down" && (
-                        <TrendingDown
-                          className="mt-0.5 size-4 shrink-0 text-red-600"
-                          aria-hidden
-                        />
-                      )}
-                      <span className="text-sm leading-snug text-gray-600">
-                        {card.hint}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 sm:size-11">
-                    <Icon className="size-5 text-blue-600" aria-hidden />
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
+        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-5 lg:gap-5">
+          <div className="lg:col-span-3">
+            <CriticalStockCard />
+          </div>
+          <div className="flex flex-col gap-4 lg:col-span-2">
+            <MonthlyReportCard />
+            <CompactPeriodKpis items={secondaryKpis} />
+          </div>
         </div>
       </section>
 
