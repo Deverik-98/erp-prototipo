@@ -11,7 +11,7 @@ Aplicación web interna con panel de control, inventario, punto de venta, direct
 ## Páginas
 
 - **Inicio (dashboard):** Saludo + sucursal → “Cómo va hoy” → atajos → **un solo card** “Stock y contexto” (`DashboardStockContextSection`): izquierda lista compacta de alertas (sin grid 3× que estira filas) + CTA; derecha KPIs **layout strip** + **Cierre del mes** → gráficos → movimiento reciente
-- **Inventario:** Productos e insumos, búsqueda, filtros, importación masiva (simulada)
+- **Inventario:** KPIs según filtros; **agrupación** con **colapsables** (totales por grupo: líneas, stock u., valor, alertas) y detalle al expandir; filtro **Origen** (producción interna vs. compra · distribución); **export CSV**; **modal de alta** en 2 pestañas (datos generales + variantes con tipos de atributo reutilizables o SKU único); catálogo en estado local (demo). *MVP:* sin MRP/BOM; variantes como filas de inventario independientes (escalable a matriz talla×color en backend).
 - **Punto de Venta:** Registro de pedidos tipo WhatsApp, carrito, descuentos, métodos de pago
 - **Clientes:** Directorio con búsqueda, alta de nuevos clientes
 - **Configuración:** Roles (Admin, Cajero), bitácora de actividad
