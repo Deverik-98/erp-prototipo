@@ -187,12 +187,9 @@ export function Dashboard() {
         description={`Vista operativa · ${dateStr}`}
       />
 
-      <section
-        aria-labelledby="dash-summary"
-        className="mb-5 sm:mb-6"
-      >
+      <section aria-labelledby="dash-summary" className="mb-6 sm:mb-8">
         <h2 id="dash-summary" className="sr-only">
-          Resumen del día
+          Resumen del día y accesos
         </h2>
         <BusinessSummaryCard
           dateIso={now.toISOString()}
@@ -205,35 +202,31 @@ export function Dashboard() {
           pendientes={pendingCount}
           alertasStock={LOW_STOCK_COUNT}
         />
-      </section>
-
-      <section aria-labelledby="dash-quick" className="mb-6 sm:mb-8">
-        <h2 id="dash-quick" className="mb-2 text-sm font-semibold text-gray-900">
-          Accesos rápidos
-        </h2>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
+        <nav
+          aria-label="Accesos rápidos"
+          className="mt-3 flex flex-wrap gap-2 sm:mt-4 sm:flex-nowrap sm:gap-2 sm:overflow-x-auto sm:pb-0.5"
+        >
           {quickActions.map((action) => {
             const Icon = action.icon;
             return (
               <Button
                 key={action.label}
                 variant="outline"
-                className="h-auto flex-col gap-1 py-3 text-center shadow-sm"
+                size="sm"
+                className="h-9 shrink-0 gap-2 border-gray-200 bg-white px-3 shadow-sm hover:bg-gray-50"
                 asChild
               >
                 <Link to={action.to}>
-                  <Icon className="size-[1.15rem] text-blue-600" aria-hidden />
-                  <span className="text-sm font-medium leading-tight">
-                    {action.label}
-                  </span>
-                  <span className="text-[11px] font-normal text-gray-500">
-                    {action.description}
+                  <Icon className="size-4 text-blue-600" aria-hidden />
+                  <span className="font-medium">{action.label}</span>
+                  <span className="hidden text-xs font-normal text-gray-500 sm:inline">
+                    · {action.description}
                   </span>
                 </Link>
               </Button>
             );
           })}
-        </div>
+        </nav>
       </section>
 
       <section aria-labelledby="dash-inventory-month" className="mb-6 sm:mb-8">
@@ -243,7 +236,7 @@ export function Dashboard() {
         >
           Inventario e informe del mes
         </h2>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
+        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2 lg:gap-6">
           <CriticalStockCard />
           <MonthlyReportCard />
         </div>

@@ -3,13 +3,12 @@ import { toast } from "sonner";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
 
-const MONTH_LABEL = "marzo 2026";
-const PREV_MONTH_LABEL = "febrero 2026";
+const MONTH_LABEL = "Marzo 2026";
+const PREV_MONTH_LABEL = "feb. 2026";
 const GROWTH_PCT = 15;
 
 /**
- * Resumen mensual motivador + CTA secundario (PDF).
- * UX: refuerzo positivo primero, acción de descarga sin competir con tareas operativas.
+ * Variante compacta: una frase de resultado + CTA; evita altura despareja junto a stock crítico.
  */
 export function MonthlyReportCard() {
   function handleDownloadPdf() {
@@ -20,48 +19,42 @@ export function MonthlyReportCard() {
   }
 
   return (
-    <Card className="flex h-full flex-col border-emerald-100/80 bg-gradient-to-br from-emerald-50/70 via-white to-white p-5 shadow-sm sm:p-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-6">
-        <div className="flex items-start gap-4 lg:flex-1">
+    <Card className="border-emerald-100/90 bg-gradient-to-r from-emerald-50/95 to-white p-3 shadow-sm sm:p-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div className="flex min-w-0 items-start gap-3">
           <div
-            className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800"
+            className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800 sm:size-10"
             aria-hidden
           >
-            <Sparkles className="size-6" />
+            <Sparkles className="size-[1.15rem] sm:size-5" />
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-800/80">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-800/90 sm:text-xs">
               Reporte mensual
             </p>
-            <h2 className="mt-1 text-lg font-bold text-gray-900 sm:text-xl">
-              Tu rendimiento en {MONTH_LABEL}
-            </h2>
-            <p className="mt-3 text-sm leading-relaxed text-gray-700 sm:text-base">
-              <span className="font-semibold text-emerald-800">
-                Ha crecido un {GROWTH_PCT}%
-              </span>{" "}
-              respecto a {PREV_MONTH_LABEL}.{" "}
-              <span className="text-gray-800">¡Buen trabajo!</span>
+            <p className="mt-0.5 text-sm font-bold leading-snug text-gray-900 sm:text-base">
+              <span className="text-emerald-800">+{GROWTH_PCT}%</span> vs.{" "}
+              {PREV_MONTH_LABEL}
+              <span className="font-normal text-gray-600">
+                {" "}
+                · ventas facturadas ({MONTH_LABEL.toLowerCase()})
+              </span>
             </p>
-            <p className="mt-2 text-xs text-gray-500">
-              Comparativa de ventas facturadas (demo). Cierre al último día hábil.
+            <p className="mt-0.5 text-[11px] text-gray-500 sm:text-xs">
+              Cierre al último día hábil · datos de ejemplo
             </p>
           </div>
         </div>
-        <div className="flex shrink-0 flex-col justify-center gap-2 border-t border-emerald-100/60 pt-4 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
-          <p className="text-xs text-gray-500 lg:max-w-[12rem]">
-            PDF para reuniones o contabilidad (acción secundaria).
-          </p>
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full shrink-0 border-blue-200 text-blue-700 hover:bg-blue-50 lg:w-auto"
-            onClick={handleDownloadPdf}
-          >
-            <FileDown className="size-4" aria-hidden />
-            Descargar PDF
-          </Button>
-        </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-9 w-full shrink-0 border-blue-200 text-blue-700 hover:bg-blue-50 sm:w-auto sm:self-center"
+          onClick={handleDownloadPdf}
+        >
+          <FileDown className="size-4" aria-hidden />
+          Descargar PDF
+        </Button>
       </div>
     </Card>
   );

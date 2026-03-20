@@ -33,7 +33,7 @@ function StockRow({ item }: { item: CriticalStockItem }) {
     <li>
       <div
         className={cn(
-          "rounded-lg border px-3 py-3 sm:px-4",
+          "rounded-lg border px-2.5 py-2 sm:px-3 sm:py-2.5",
           level === "critical" && "border-red-200 bg-red-50/50",
           level === "warning" && "border-amber-200 bg-amber-50/40",
           level === "low" && "border-orange-100 bg-orange-50/30"
@@ -52,9 +52,9 @@ function StockRow({ item }: { item: CriticalStockItem }) {
                 · mínimo sugerido {item.minimum}
               </span>
             </p>
-            <div className="mt-2">
+            <div className="mt-1.5">
               <div
-                className="flex h-2 overflow-hidden rounded-full bg-white/80 ring-1 ring-gray-200/80"
+                className="flex h-1.5 overflow-hidden rounded-full bg-white/80 ring-1 ring-gray-200/80"
                 role="progressbar"
                 aria-valuenow={item.current}
                 aria-valuemin={0}
@@ -71,14 +71,14 @@ function StockRow({ item }: { item: CriticalStockItem }) {
                   style={{ width: `${fillPct}%` }}
                 />
               </div>
-              <p className="mt-1 text-[11px] text-gray-500">
-                {fillPct}% del stock mínimo objetivo
+              <p className="mt-0.5 text-[10px] text-gray-500 sm:text-[11px]">
+                {fillPct}% del mínimo
               </p>
             </div>
           </div>
           <span
             className={cn(
-              "flex size-9 shrink-0 items-center justify-center rounded-full text-lg font-bold",
+              "flex size-8 shrink-0 items-center justify-center rounded-full text-base font-bold sm:size-9 sm:text-lg",
               level === "critical" && "bg-red-100 text-red-700",
               level === "warning" && "bg-amber-100 text-amber-800",
               level === "low" && "bg-orange-100 text-orange-800"
@@ -98,27 +98,25 @@ function StockRow({ item }: { item: CriticalStockItem }) {
  */
 export function CriticalStockCard() {
   return (
-    <Card className="flex h-full flex-col p-4 shadow-sm sm:p-5">
-      <div className="flex items-center gap-3">
+    <Card className="flex flex-col p-4 shadow-sm sm:p-5">
+      <div className="flex items-center gap-2.5">
         <div
-          className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-700"
+          className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-700 sm:size-11 sm:rounded-xl"
           aria-hidden
         >
-          <ClipboardList className="size-6" />
+          <ClipboardList className="size-5 sm:size-6" />
         </div>
         <div className="min-w-0">
-          <h2 className="text-lg font-bold text-gray-900">Stock crítico</h2>
-          <p className="text-xs text-gray-500 sm:text-sm">
-            Los 3 más urgentes de 7 ítems bajo mínimo
+          <h2 className="text-base font-bold text-gray-900 sm:text-lg">
+            Stock crítico
+          </h2>
+          <p className="text-xs text-gray-500">
+            3 ítems con mayor desvío · 7 bajo mínimo en total
           </p>
         </div>
       </div>
 
-      <p className="mt-2 text-xs text-gray-500 sm:text-sm">
-        Mayor desvío frente al mínimo (3 de 7 ítems bajo mínimo).
-      </p>
-
-      <ul className="mt-3 flex flex-1 flex-col gap-2.5">
+      <ul className="mt-3 flex flex-col gap-2">
         {items.map((item) => (
           <StockRow key={item.id} item={item} />
         ))}
