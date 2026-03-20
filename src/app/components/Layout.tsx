@@ -76,7 +76,7 @@ const navSections: NavSection[] = [
         path: "/inventario",
         icon: Package,
         label: "Inventario",
-        hint: "Productos, stock y alertas de mínimo",
+        hint: "Stock, exportación CSV, valor y agrupación",
       },
       {
         path: "/punto-venta",
