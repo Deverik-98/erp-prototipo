@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import {
   Area,
   AreaChart,
@@ -11,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import { Card } from "../ui/card";
+import { cn } from "../ui/utils";
 
 const salesLast7Days = [
   { day: "Lun", ventas: 8.2 },
@@ -33,19 +35,30 @@ function formatThousands(v: number) {
   return `$${v.toFixed(1)}k`;
 }
 
-export function SalesTrendCard() {
-  return (
-    <Card className="p-5 shadow-sm sm:p-6">
+type ChartVariant = "standalone" | "panel";
+
+export function SalesTrendCard({ variant = "standalone" }: { variant?: ChartVariant }) {
+  const shell = (children: ReactNode) =>
+    variant === "standalone" ? (
+      <Card className="p-5 shadow-sm sm:p-6">{children}</Card>
+    ) : (
+      <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
+        {children}
+      </div>
+    );
+
+  return shell(
+    <>
       <div className="mb-1">
-        <h2 className="text-base font-bold text-gray-900 sm:text-lg">
+        <h3 className="text-base font-bold text-gray-900 sm:text-lg">
           Ventas de la semana
-        </h2>
+        </h3>
         <p className="text-xs text-gray-500 sm:text-sm">
           Monto estimado por día (miles ARS, demo)
         </p>
       </div>
       <div
-        className="mt-4 h-[220px] w-full min-w-0"
+        className={cn("mt-4 h-[220px] w-full min-w-0", variant === "panel" && "h-[200px]")}
         role="img"
         aria-label="Gráfico de área: ventas diarias de los últimos siete días"
       >
@@ -55,7 +68,7 @@ export function SalesTrendCard() {
             margin={{ top: 8, right: 8, left: -18, bottom: 0 }}
           >
             <defs>
-              <linearGradient id="fillVentas" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="fillVentasZuma" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.35} />
                 <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.02} />
               </linearGradient>
@@ -88,23 +101,32 @@ export function SalesTrendCard() {
               dataKey="ventas"
               stroke="#2563eb"
               strokeWidth={2}
-              fill="url(#fillVentas)"
+              fill="url(#fillVentasZuma)"
               name="Ventas"
             />
           </AreaChart>
         </ResponsiveContainer>
       </div>
-    </Card>
+    </>
   );
 }
 
-export function CategoryMixCard() {
-  return (
-    <Card className="p-5 shadow-sm sm:p-6">
+export function CategoryMixCard({ variant = "standalone" }: { variant?: ChartVariant }) {
+  const shell = (children: ReactNode) =>
+    variant === "standalone" ? (
+      <Card className="p-5 shadow-sm sm:p-6">{children}</Card>
+    ) : (
+      <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
+        {children}
+      </div>
+    );
+
+  return shell(
+    <>
       <div className="mb-1">
-        <h2 className="text-base font-bold text-gray-900 sm:text-lg">
+        <h3 className="text-base font-bold text-gray-900 sm:text-lg">
           Mix de ventas
-        </h2>
+        </h3>
         <p className="text-xs text-gray-500 sm:text-sm">
           Participación por categoría (últimos 30 días, demo)
         </p>
@@ -158,6 +180,6 @@ export function CategoryMixCard() {
           ))}
         </ul>
       </div>
-    </Card>
+    </>
   );
 }

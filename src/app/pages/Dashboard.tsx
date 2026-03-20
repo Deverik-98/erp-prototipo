@@ -3,7 +3,6 @@ import {
   TrendingUp,
   TrendingDown,
   AlertCircle,
-  DollarSign,
   ShoppingCart,
   Package,
   Users,
@@ -23,21 +22,20 @@ import {
   TableRow,
 } from "../components/ui/table";
 import { Badge } from "../components/ui/badge";
-import { cn } from "../components/ui/utils";
 import { SESSION_DISPLAY_NAME } from "../branding";
 import { MonthlyReportCard } from "../components/dashboard/MonthlyReportCard";
 import { CriticalStockCard } from "../components/dashboard/CriticalStockCard";
-import { CategoryMixCard, SalesTrendCard } from "../components/dashboard/DashboardCharts";
+import { TodaySnapshotCard } from "../components/dashboard/TodaySnapshotCard";
+import { DashboardVisualAnalysis } from "../components/dashboard/DashboardVisualAnalysis";
 
 const LOW_STOCK_COUNT = 7;
 
 const heroMetric = {
-  title: "Ventas del día",
   value: "$ 12.450",
   changeLabel: "+12.5% vs. ayer",
-  trend: "up" as const,
 };
 
+/** KPIs secundarios: sin duplicar “bajo stock” (ya en widget + acceso rápido). */
 const secondaryKpis = [
   {
     id: "pedidos-hoy",
@@ -54,16 +52,6 @@ const secondaryKpis = [
     hint: "Últimos 7 días (demo)",
     trend: "up" as const,
     icon: TrendingUp,
-  },
-  {
-    id: "bajo-stock",
-    title: "Ítems bajo mínimo",
-    value: String(LOW_STOCK_COUNT),
-    hint: "Revisar en inventario",
-    trend: "alert" as const,
-    icon: AlertCircle,
-    linkTo: "/inventario",
-    linkLabel: "Ver inventario",
   },
   {
     id: "clientes",
@@ -178,14 +166,10 @@ export function Dashboard() {
   return (
     <PageShell>
       <p className="mb-4 flex items-start gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600 sm:text-sm">
-        <Info
-          className="mt-0.5 size-4 shrink-0 text-gray-400"
-          aria-hidden
-        />
+        <Info className="mt-0.5 size-4 shrink-0 text-gray-400" aria-hidden />
         <span>
           <span className="font-medium text-gray-700">Datos de demostración.</span>{" "}
-          Las cifras y pedidos son ejemplos para el prototipo; no reflejan un backend
-          real.
+          Cifras y pedidos de ejemplo; sin backend real.
         </span>
       </p>
 
@@ -198,28 +182,29 @@ export function Dashboard() {
         title="Panel de Control"
         description={
           <>
-            <p>
-              <span className="block sm:inline">
-                Hoy:{" "}
-                <strong>{heroMetric.value}</strong> en ventas
-                {" · "}
-              </span>
-              <span className="block sm:inline">
-                <strong>{pendingCount}</strong>{" "}
-                {pendingCount === 1 ? "pedido pendiente" : "pedidos pendientes"}
-                {" · "}
-              </span>
-              <span className="block sm:inline">
-                <strong>{LOW_STOCK_COUNT}</strong> ítems bajo mínimo
-              </span>
+            <p className="leading-relaxed">
+              Orden pensado para PyME:{" "}
+              <strong className="font-semibold text-gray-800">
+                acciones y alertas primero
+              </strong>
+              , contexto del mes después, gráficos bajo demanda al final de esta
+              página.
             </p>
-            <p className="text-xs text-gray-500 sm:text-sm">Resumen al {dateStr}</p>
+            <p className="mt-2 text-xs text-gray-500 sm:text-sm">
+              Actualizado al {dateStr}
+            </p>
           </>
         }
       />
 
-      <section aria-label="Accesos rápidos" className="mb-6 sm:mb-8">
-        <h2 className="mb-3 text-sm font-semibold text-gray-900">Accesos rápidos</h2>
+      {/* 1 · Máxima accionabilidad */}
+      <section aria-labelledby="dash-quick" className="mb-6 sm:mb-8">
+        <h2 id="dash-quick" className="mb-3 text-sm font-semibold text-gray-900">
+          Empezá por aquí
+        </h2>
+        <p className="mb-3 text-xs text-gray-500 sm:text-sm">
+          Atajos a lo que más usás en el día (ventas, stock, clientes).
+        </p>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {quickActions.map((action) => {
             const Icon = action.icon;
@@ -245,205 +230,192 @@ export function Dashboard() {
         </div>
       </section>
 
-      <section aria-labelledby="dashboard-hero-metric" className="mb-6 sm:mb-8">
-        <h2 id="dashboard-hero-metric" className="sr-only">
-          Métrica principal del día
+      {/* 2 · Urgencia operativa + snapshot del día */}
+      <section aria-labelledby="dash-attention" className="mb-6 sm:mb-8">
+        <h2 id="dash-attention" className="mb-3 text-sm font-semibold text-gray-900">
+          Requiere tu atención
         </h2>
-        <Card className="border-blue-100 bg-gradient-to-br from-blue-50/90 to-white p-5 shadow-sm sm:p-8">
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-blue-900/90">
-                Métrica principal · {heroMetric.title}
-              </p>
-              <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                {heroMetric.value}
-              </p>
-              <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-green-700">
-                <TrendingUp className="size-4 shrink-0" aria-hidden />
-                {heroMetric.changeLabel}
-              </p>
-            </div>
-            <div
-              className="flex size-16 shrink-0 items-center justify-center self-start rounded-2xl bg-blue-100/80 sm:size-20 sm:self-center"
-              aria-hidden
-            >
-              <DollarSign className="size-8 text-blue-600 sm:size-10" />
-            </div>
-          </div>
-        </Card>
-      </section>
-
-      <section
-        aria-label="Resumen mensual y alertas de inventario"
-        className="mb-6 grid grid-cols-1 gap-4 sm:mb-8 lg:grid-cols-2 lg:gap-6"
-      >
-        <MonthlyReportCard />
-        <CriticalStockCard />
-      </section>
-
-      <section
-        aria-label="Tendencias y composición de ventas"
-        className="mb-6 grid grid-cols-1 gap-4 sm:mb-8 lg:grid-cols-2 lg:gap-6"
-      >
-        <SalesTrendCard />
-        <CategoryMixCard />
-      </section>
-
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:mb-8 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
-        {secondaryKpis.map((card) => {
-          const Icon = card.icon;
-          const regionId = `kpi-${card.id}`;
-          return (
-            <Card
-              key={card.id}
-              role="region"
-              aria-labelledby={regionId}
-              className="flex flex-col p-4 sm:p-6"
-            >
-              <div className="flex flex-1 items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p id={regionId} className="text-sm text-gray-600">
-                    {card.title}
-                  </p>
-                  <p className="mt-1 text-xl font-bold text-gray-900 sm:text-2xl">
-                    {card.value}
-                  </p>
-                  <div className="mt-2 flex items-start gap-1">
-                    {card.trend === "up" && (
-                      <TrendingUp
-                        className="mt-0.5 size-4 shrink-0 text-green-600"
-                        aria-hidden
-                      />
-                    )}
-                    {card.trend === "alert" && (
-                      <AlertCircle
-                        className="mt-0.5 size-4 shrink-0 text-orange-600"
-                        aria-hidden
-                      />
-                    )}
-                    {card.trend === "down" && (
-                      <TrendingDown
-                        className="mt-0.5 size-4 shrink-0 text-green-600"
-                        aria-hidden
-                      />
-                    )}
-                    <span
-                      className={cn(
-                        "text-sm leading-snug",
-                        card.trend === "alert"
-                          ? "text-orange-700"
-                          : "text-gray-600"
-                      )}
-                    >
-                      {card.hint}
-                    </span>
-                  </div>
-                  {"linkTo" in card && card.linkTo ? (
-                    <Link
-                      to={card.linkTo}
-                      className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-sm"
-                    >
-                      {card.linkLabel}
-                      <ArrowRight className="size-4" aria-hidden />
-                    </Link>
-                  ) : null}
-                </div>
-                <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-blue-50 sm:size-12">
-                  <Icon className="size-5 text-blue-600 sm:size-6" aria-hidden />
-                </div>
-              </div>
-            </Card>
-          );
-        })}
-      </div>
-
-      <Card className="p-4 sm:p-6">
-        <div className="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-lg font-bold text-gray-900 sm:text-xl">
-              Últimos pedidos
-            </h2>
-            <p className="mt-1 text-sm text-gray-500">
-              Pedidos recientes (demostración)
-            </p>
-          </div>
-          <Button variant="outline" size="sm" className="w-full shrink-0 sm:w-auto" asChild>
-            <Link to="/punto-venta" className="gap-2">
-              Ver todos
-              <ArrowRight className="size-4" aria-hidden />
-            </Link>
-          </Button>
+        <p className="mb-4 text-xs text-gray-500 sm:text-sm">
+          Stock crítico primero; al lado, ventas de hoy y la cola de pedidos
+          pendientes.
+        </p>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
+          <CriticalStockCard />
+          <TodaySnapshotCard
+            ventasValue={heroMetric.value}
+            changeLabel={heroMetric.changeLabel}
+            pendingCount={pendingCount}
+          />
         </div>
+      </section>
 
-        <ul className="space-y-3 md:hidden" aria-label="Últimos pedidos en vista compacta">
-          {recentOrders.map((order) => (
-            <li key={order.id}>
-              <Card className="border-gray-200 p-4 shadow-sm">
-                <div className="flex items-start justify-between gap-2">
-                  <Link
-                    to="/punto-venta"
-                    className="text-sm font-semibold text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-sm"
-                  >
-                    {order.id}
-                  </Link>
-                  <OrderStatusBadge estado={order.estado} />
+      {/* 3 · Contexto de negocio (refuerzo, no bloqueo) */}
+      <section aria-labelledby="dash-monthly" className="mb-6 sm:mb-8">
+        <h2 id="dash-monthly" className="sr-only">
+          Reporte mensual
+        </h2>
+        <MonthlyReportCard />
+      </section>
+
+      {/* 4 · Lectura de acompañamiento */}
+      <section aria-labelledby="dash-kpis" className="mb-6 sm:mb-8">
+        <h2 id="dash-kpis" className="mb-3 text-sm font-semibold text-gray-900">
+          Indicadores del período
+        </h2>
+        <p className="mb-4 text-xs text-gray-500 sm:text-sm">
+          Complementan el resumen de hoy; no repiten el detalle de stock crítico.
+        </p>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
+          {secondaryKpis.map((card) => {
+            const Icon = card.icon;
+            const regionId = `kpi-${card.id}`;
+            return (
+              <Card
+                key={card.id}
+                role="region"
+                aria-labelledby={regionId}
+                className="flex flex-col p-4 sm:p-6"
+              >
+                <div className="flex flex-1 items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p id={regionId} className="text-sm text-gray-600">
+                      {card.title}
+                    </p>
+                    <p className="mt-1 text-xl font-bold text-gray-900 sm:text-2xl">
+                      {card.value}
+                    </p>
+                    <div className="mt-2 flex items-start gap-1">
+                      {card.trend === "up" && (
+                        <TrendingUp
+                          className="mt-0.5 size-4 shrink-0 text-green-600"
+                          aria-hidden
+                        />
+                      )}
+                      {card.trend === "down" && (
+                        <TrendingDown
+                          className="mt-0.5 size-4 shrink-0 text-green-600"
+                          aria-hidden
+                        />
+                      )}
+                      <span className="text-sm leading-snug text-gray-600">
+                        {card.hint}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-blue-50 sm:size-12">
+                    <Icon className="size-5 text-blue-600 sm:size-6" aria-hidden />
+                  </div>
                 </div>
-                <p className="mt-2 font-medium text-gray-900">{order.cliente}</p>
-                <p className="mt-1 text-xs text-gray-500">{order.fecha}</p>
-                <p className="mt-2 line-clamp-2 text-sm text-gray-600">
-                  {order.productos}
-                </p>
-                <p className="mt-3 text-base font-semibold text-gray-900">
-                  {order.total}
-                </p>
               </Card>
-            </li>
-          ))}
-        </ul>
+            );
+          })}
+        </div>
+      </section>
 
-        <div className="hidden overflow-x-auto md:block">
-          <Table className="min-w-[640px]">
-            <caption className="sr-only">
-              Tabla de los últimos pedidos con cliente, fecha, productos y total
-            </caption>
-            <TableHeader>
-              <TableRow>
-                <TableHead scope="col">ID pedido</TableHead>
-                <TableHead scope="col">Cliente</TableHead>
-                <TableHead scope="col">Fecha y hora</TableHead>
-                <TableHead scope="col">Productos</TableHead>
-                <TableHead scope="col">Total</TableHead>
-                <TableHead scope="col">Estado</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {recentOrders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell className="font-medium">
+      {/* 5 · Análisis bajo demanda (revelación progresiva) */}
+      <DashboardVisualAnalysis />
+
+      {/* 6 · Historial operativo */}
+      <section aria-labelledby="dash-orders">
+        <h2 id="dash-orders" className="sr-only">
+          Últimos pedidos
+        </h2>
+        <Card className="p-4 sm:p-6">
+          <div className="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-lg font-bold text-gray-900 sm:text-xl">
+                Últimos pedidos
+              </p>
+              <p className="mt-1 text-sm text-gray-500">
+                Movimiento reciente (demostración)
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full shrink-0 sm:w-auto"
+              asChild
+            >
+              <Link to="/punto-venta" className="gap-2">
+                Ver todos
+                <ArrowRight className="size-4" aria-hidden />
+              </Link>
+            </Button>
+          </div>
+
+          <ul
+            className="space-y-3 md:hidden"
+            aria-label="Últimos pedidos en vista compacta"
+          >
+            {recentOrders.map((order) => (
+              <li key={order.id}>
+                <Card className="border-gray-200 p-4 shadow-sm">
+                  <div className="flex items-start justify-between gap-2">
                     <Link
                       to="/punto-venta"
-                      className="text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 rounded-sm"
+                      className="rounded-sm text-sm font-semibold text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                     >
                       {order.id}
                     </Link>
-                  </TableCell>
-                  <TableCell>{order.cliente}</TableCell>
-                  <TableCell className="whitespace-nowrap text-gray-600">
-                    {order.fecha}
-                  </TableCell>
-                  <TableCell className="max-w-[200px] truncate sm:max-w-xs">
-                    {order.productos}
-                  </TableCell>
-                  <TableCell className="font-semibold">{order.total}</TableCell>
-                  <TableCell>
                     <OrderStatusBadge estado={order.estado} />
-                  </TableCell>
+                  </div>
+                  <p className="mt-2 font-medium text-gray-900">{order.cliente}</p>
+                  <p className="mt-1 text-xs text-gray-500">{order.fecha}</p>
+                  <p className="mt-2 line-clamp-2 text-sm text-gray-600">
+                    {order.productos}
+                  </p>
+                  <p className="mt-3 text-base font-semibold text-gray-900">
+                    {order.total}
+                  </p>
+                </Card>
+              </li>
+            ))}
+          </ul>
+
+          <div className="hidden overflow-x-auto md:block">
+            <Table className="min-w-[640px]">
+              <caption className="sr-only">
+                Tabla de los últimos pedidos con cliente, fecha, productos y total
+              </caption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead scope="col">ID pedido</TableHead>
+                  <TableHead scope="col">Cliente</TableHead>
+                  <TableHead scope="col">Fecha y hora</TableHead>
+                  <TableHead scope="col">Productos</TableHead>
+                  <TableHead scope="col">Total</TableHead>
+                  <TableHead scope="col">Estado</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </Card>
+              </TableHeader>
+              <TableBody>
+                {recentOrders.map((order) => (
+                  <TableRow key={order.id}>
+                    <TableCell className="font-medium">
+                      <Link
+                        to="/punto-venta"
+                        className="rounded-sm text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+                      >
+                        {order.id}
+                      </Link>
+                    </TableCell>
+                    <TableCell>{order.cliente}</TableCell>
+                    <TableCell className="whitespace-nowrap text-gray-600">
+                      {order.fecha}
+                    </TableCell>
+                    <TableCell className="max-w-[200px] truncate sm:max-w-xs">
+                      {order.productos}
+                    </TableCell>
+                    <TableCell className="font-semibold">{order.total}</TableCell>
+                    <TableCell>
+                      <OrderStatusBadge estado={order.estado} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </Card>
+      </section>
     </PageShell>
   );
 }
