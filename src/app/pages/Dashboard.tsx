@@ -25,6 +25,9 @@ import {
 import { Badge } from "../components/ui/badge";
 import { cn } from "../components/ui/utils";
 import { SESSION_DISPLAY_NAME } from "../branding";
+import { MonthlyReportCard } from "../components/dashboard/MonthlyReportCard";
+import { CriticalStockCard } from "../components/dashboard/CriticalStockCard";
+import { CategoryMixCard, SalesTrendCard } from "../components/dashboard/DashboardCharts";
 
 const LOW_STOCK_COUNT = 7;
 
@@ -268,6 +271,22 @@ export function Dashboard() {
             </div>
           </div>
         </Card>
+      </section>
+
+      <section
+        aria-label="Resumen mensual y alertas de inventario"
+        className="mb-6 grid grid-cols-1 gap-4 sm:mb-8 lg:grid-cols-2 lg:gap-6"
+      >
+        <MonthlyReportCard />
+        <CriticalStockCard />
+      </section>
+
+      <section
+        aria-label="Tendencias y composición de ventas"
+        className="mb-6 grid grid-cols-1 gap-4 sm:mb-8 lg:grid-cols-2 lg:gap-6"
+      >
+        <SalesTrendCard />
+        <CategoryMixCard />
       </section>
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:mb-8 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
