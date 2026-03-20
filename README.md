@@ -65,9 +65,11 @@ El proyecto se despliega en **GitHub Pages** automáticamente al hacer push a la
 
 ## Git Flow
 
-- `main` — Código estable para demo
-- `develop` — Integración de features
-- `feature/*` — Nuevas funcionalidades
+- **`feature/*`** — Toda nueva funcionalidad nace aquí (commit y push del feature).
+- **`develop`** — Se integra solo con **merge `--no-ff`** desde `feature/*` (o PR equivalente). No commitear features directo en `develop`.
+- **`main`** — Código estable para demo; se actualiza con **merge `--no-ff`** desde `develop` cuando el integrador decide publicar.
+
+Orden típico: `feature/mi-tarea` → `develop` → `main`. Tras integrar, eliminar la rama `feature` en local y remoto.
 
 ## Licencia
 
