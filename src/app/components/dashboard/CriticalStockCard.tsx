@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { AlertTriangle, ClipboardList } from "lucide-react";
+import { ClipboardList } from "lucide-react";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
 import { cn } from "../ui/utils";
@@ -98,7 +98,7 @@ function StockRow({ item }: { item: CriticalStockItem }) {
  */
 export function CriticalStockCard() {
   return (
-    <Card className="flex h-full flex-col p-5 shadow-sm sm:p-6">
+    <Card className="flex h-full flex-col p-4 shadow-sm sm:p-5">
       <div className="flex items-center gap-3">
         <div
           className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-700"
@@ -114,14 +114,11 @@ export function CriticalStockCard() {
         </div>
       </div>
 
-      <p className="mt-3 flex items-center gap-1.5 text-xs text-amber-800 sm:text-sm">
-        <AlertTriangle className="size-4 shrink-0" aria-hidden />
-        <span>
-          Priorizá reponer los marcados en rojo antes que los demás.
-        </span>
+      <p className="mt-2 text-xs text-gray-500 sm:text-sm">
+        Mayor desvío frente al mínimo (3 de 7 ítems bajo mínimo).
       </p>
 
-      <ul className="mt-4 flex flex-1 flex-col gap-3">
+      <ul className="mt-3 flex flex-1 flex-col gap-2.5">
         {items.map((item) => (
           <StockRow key={item.id} item={item} />
         ))}
@@ -129,7 +126,7 @@ export function CriticalStockCard() {
 
       <Button
         variant="outline"
-        className="mt-5 w-full border-blue-600 text-blue-700 hover:bg-blue-50"
+        className="mt-4 w-full border-blue-600 text-blue-700 hover:bg-blue-50"
         asChild
       >
         <Link to="/inventario">Gestionar inventario</Link>

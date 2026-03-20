@@ -24,12 +24,8 @@ export function DashboardVisualAnalysis() {
               <h2 className="text-base font-bold text-gray-900 sm:text-lg">
                 Análisis visual
               </h2>
-              <p className="mt-1 text-sm leading-snug text-gray-600">
-                Tendencia de la semana y mix por categoría.{" "}
-                <span className="text-gray-500">
-                  Abrí cuando quieras profundizar; el inicio del panel prioriza
-                  acciones y alertas.
-                </span>
+              <p className="mt-0.5 text-sm text-gray-600">
+                Ventas por día y mix por categoría.
               </p>
             </div>
             <ChevronDown

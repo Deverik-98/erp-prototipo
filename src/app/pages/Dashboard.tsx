@@ -7,6 +7,7 @@ import {
   Package,
   Users,
   Receipt,
+  CalendarDays,
   ArrowRight,
   Info,
 } from "lucide-react";
@@ -25,41 +26,37 @@ import { Badge } from "../components/ui/badge";
 import { SESSION_DISPLAY_NAME } from "../branding";
 import { MonthlyReportCard } from "../components/dashboard/MonthlyReportCard";
 import { CriticalStockCard } from "../components/dashboard/CriticalStockCard";
-import { TodaySnapshotCard } from "../components/dashboard/TodaySnapshotCard";
+import { BusinessSummaryCard } from "../components/dashboard/BusinessSummaryCard";
 import { DashboardVisualAnalysis } from "../components/dashboard/DashboardVisualAnalysis";
 
 const LOW_STOCK_COUNT = 7;
+const PEDIDOS_HOY = 8;
+const TICKET_PROMEDIO = "$ 382";
 
-const heroMetric = {
-  value: "$ 12.450",
-  changeLabel: "+12.5% vs. ayer",
-};
-
-/** KPIs secundarios: sin duplicar “bajo stock” (ya en widget + acceso rápido). */
 const secondaryKpis = [
-  {
-    id: "pedidos-hoy",
-    title: "Pedidos hoy",
-    value: "8",
-    hint: "Incluye 1 pendiente de armar",
-    trend: "neutral" as const,
-    icon: Receipt,
-  },
   {
     id: "ticket",
     title: "Ticket promedio",
-    value: "$ 382",
-    hint: "Últimos 7 días (demo)",
-    trend: "up" as const,
-    icon: TrendingUp,
+    value: TICKET_PROMEDIO,
+    hint: "Últimos 7 días",
+    trend: "neutral" as const,
+    icon: Receipt,
   },
   {
     id: "clientes",
     title: "Clientes activos",
     value: "24",
-    hint: "Con compra en los últimos 7 días",
+    hint: "Compraron en los últimos 7 días",
     trend: "neutral" as const,
     icon: Users,
+  },
+  {
+    id: "pedidos-7d",
+    title: "Pedidos (7 días)",
+    value: "47",
+    hint: "+14% vs. semana anterior",
+    trend: "up" as const,
+    icon: CalendarDays,
   },
 ];
 
@@ -132,13 +129,13 @@ const quickActions = [
     to: "/punto-venta",
     label: "Nuevo pedido",
     icon: ShoppingCart,
-    description: "Punto de venta",
+    description: "POS",
   },
   {
     to: "/inventario",
     label: "Inventario",
     icon: Package,
-    description: "Stock y productos",
+    description: "Stock",
   },
   {
     to: "/clientes",
@@ -155,11 +152,18 @@ const quickActions = [
 ] as const;
 
 export function Dashboard() {
-  const dateStr = new Date().toLocaleDateString("es-AR", {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("es-AR", {
     weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
+  });
+  const summaryStamp = now.toLocaleString("es-AR", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
   });
   const pendingCount = recentOrders.filter((o) => o.estado === "Pendiente").length;
 
@@ -168,8 +172,8 @@ export function Dashboard() {
       <p className="mb-4 flex items-start gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600 sm:text-sm">
         <Info className="mt-0.5 size-4 shrink-0 text-gray-400" aria-hidden />
         <span>
-          <span className="font-medium text-gray-700">Datos de demostración.</span>{" "}
-          Cifras y pedidos de ejemplo; sin backend real.
+          <span className="font-medium text-gray-700">Demostración.</span>{" "}
+          Datos de ejemplo para validar flujos; en producción vendrían del servidor.
         </span>
       </p>
 
@@ -179,48 +183,50 @@ export function Dashboard() {
       </p>
 
       <PageHeader
-        title="Panel de Control"
-        description={
-          <>
-            <p className="leading-relaxed">
-              Orden pensado para PyME:{" "}
-              <strong className="font-semibold text-gray-800">
-                acciones y alertas primero
-              </strong>
-              , contexto del mes después, gráficos bajo demanda al final de esta
-              página.
-            </p>
-            <p className="mt-2 text-xs text-gray-500 sm:text-sm">
-              Actualizado al {dateStr}
-            </p>
-          </>
-        }
+        title="Panel de control"
+        description={`Vista operativa · ${dateStr}`}
       />
 
-      {/* 1 · Máxima accionabilidad */}
-      <section aria-labelledby="dash-quick" className="mb-6 sm:mb-8">
-        <h2 id="dash-quick" className="mb-3 text-sm font-semibold text-gray-900">
-          Empezá por aquí
+      <section
+        aria-labelledby="dash-summary"
+        className="mb-5 sm:mb-6"
+      >
+        <h2 id="dash-summary" className="sr-only">
+          Resumen del día
         </h2>
-        <p className="mb-3 text-xs text-gray-500 sm:text-sm">
-          Atajos a lo que más usás en el día (ventas, stock, clientes).
-        </p>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <BusinessSummaryCard
+          dateIso={now.toISOString()}
+          dateDisplay={summaryStamp}
+          ventas="$ 12.450"
+          ventasVsAyer="+12,5% vs. ayer mismo día"
+          ventasSube
+          pedidosHoy={PEDIDOS_HOY}
+          ticketPromedio={TICKET_PROMEDIO}
+          pendientes={pendingCount}
+          alertasStock={LOW_STOCK_COUNT}
+        />
+      </section>
+
+      <section aria-labelledby="dash-quick" className="mb-6 sm:mb-8">
+        <h2 id="dash-quick" className="mb-2 text-sm font-semibold text-gray-900">
+          Accesos rápidos
+        </h2>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
           {quickActions.map((action) => {
             const Icon = action.icon;
             return (
               <Button
                 key={action.label}
                 variant="outline"
-                className="h-auto flex-col gap-1.5 py-4 text-center shadow-sm"
+                className="h-auto flex-col gap-1 py-3 text-center shadow-sm"
                 asChild
               >
                 <Link to={action.to}>
-                  <Icon className="size-5 text-blue-600" aria-hidden />
+                  <Icon className="size-[1.15rem] text-blue-600" aria-hidden />
                   <span className="text-sm font-medium leading-tight">
                     {action.label}
                   </span>
-                  <span className="text-xs font-normal text-gray-500">
+                  <span className="text-[11px] font-normal text-gray-500">
                     {action.description}
                   </span>
                 </Link>
@@ -230,42 +236,24 @@ export function Dashboard() {
         </div>
       </section>
 
-      {/* 2 · Urgencia operativa + snapshot del día */}
-      <section aria-labelledby="dash-attention" className="mb-6 sm:mb-8">
-        <h2 id="dash-attention" className="mb-3 text-sm font-semibold text-gray-900">
-          Requiere tu atención
+      <section aria-labelledby="dash-inventory-month" className="mb-6 sm:mb-8">
+        <h2
+          id="dash-inventory-month"
+          className="mb-3 text-sm font-semibold text-gray-900"
+        >
+          Inventario e informe del mes
         </h2>
-        <p className="mb-4 text-xs text-gray-500 sm:text-sm">
-          Stock crítico primero; al lado, ventas de hoy y la cola de pedidos
-          pendientes.
-        </p>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
           <CriticalStockCard />
-          <TodaySnapshotCard
-            ventasValue={heroMetric.value}
-            changeLabel={heroMetric.changeLabel}
-            pendingCount={pendingCount}
-          />
+          <MonthlyReportCard />
         </div>
       </section>
 
-      {/* 3 · Contexto de negocio (refuerzo, no bloqueo) */}
-      <section aria-labelledby="dash-monthly" className="mb-6 sm:mb-8">
-        <h2 id="dash-monthly" className="sr-only">
-          Reporte mensual
-        </h2>
-        <MonthlyReportCard />
-      </section>
-
-      {/* 4 · Lectura de acompañamiento */}
       <section aria-labelledby="dash-kpis" className="mb-6 sm:mb-8">
         <h2 id="dash-kpis" className="mb-3 text-sm font-semibold text-gray-900">
-          Indicadores del período
+          Indicadores
         </h2>
-        <p className="mb-4 text-xs text-gray-500 sm:text-sm">
-          Complementan el resumen de hoy; no repiten el detalle de stock crítico.
-        </p>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
           {secondaryKpis.map((card) => {
             const Icon = card.icon;
             const regionId = `kpi-${card.id}`;
@@ -274,17 +262,17 @@ export function Dashboard() {
                 key={card.id}
                 role="region"
                 aria-labelledby={regionId}
-                className="flex flex-col p-4 sm:p-6"
+                className="flex flex-col p-4"
               >
                 <div className="flex flex-1 items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p id={regionId} className="text-sm text-gray-600">
                       {card.title}
                     </p>
-                    <p className="mt-1 text-xl font-bold text-gray-900 sm:text-2xl">
+                    <p className="mt-0.5 text-xl font-bold tabular-nums text-gray-900 sm:text-2xl">
                       {card.value}
                     </p>
-                    <div className="mt-2 flex items-start gap-1">
+                    <div className="mt-1.5 flex items-start gap-1">
                       {card.trend === "up" && (
                         <TrendingUp
                           className="mt-0.5 size-4 shrink-0 text-green-600"
@@ -293,7 +281,7 @@ export function Dashboard() {
                       )}
                       {card.trend === "down" && (
                         <TrendingDown
-                          className="mt-0.5 size-4 shrink-0 text-green-600"
+                          className="mt-0.5 size-4 shrink-0 text-red-600"
                           aria-hidden
                         />
                       )}
@@ -302,8 +290,8 @@ export function Dashboard() {
                       </span>
                     </div>
                   </div>
-                  <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-blue-50 sm:size-12">
-                    <Icon className="size-5 text-blue-600 sm:size-6" aria-hidden />
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 sm:size-11">
+                    <Icon className="size-5 text-blue-600" aria-hidden />
                   </div>
                 </div>
               </Card>
@@ -312,24 +300,20 @@ export function Dashboard() {
         </div>
       </section>
 
-      {/* 5 · Análisis bajo demanda (revelación progresiva) */}
       <DashboardVisualAnalysis />
 
-      {/* 6 · Historial operativo */}
       <section aria-labelledby="dash-orders">
-        <h2 id="dash-orders" className="sr-only">
+        <h2
+          id="dash-orders"
+          className="mb-3 text-sm font-semibold text-gray-900 sm:mb-4"
+        >
           Últimos pedidos
         </h2>
         <Card className="p-4 sm:p-6">
-          <div className="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-lg font-bold text-gray-900 sm:text-xl">
-                Últimos pedidos
-              </p>
-              <p className="mt-1 text-sm text-gray-500">
-                Movimiento reciente (demostración)
-              </p>
-            </div>
+          <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-gray-500">
+              Registrados en punto de venta (ejemplo).
+            </p>
             <Button
               variant="outline"
               size="sm"
@@ -337,7 +321,7 @@ export function Dashboard() {
               asChild
             >
               <Link to="/punto-venta" className="gap-2">
-                Ver todos
+                Ver en POS
                 <ArrowRight className="size-4" aria-hidden />
               </Link>
             </Button>
