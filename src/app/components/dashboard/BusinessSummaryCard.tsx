@@ -38,12 +38,12 @@ export function BusinessSummaryCard({
       role="region"
       aria-labelledby="business-summary-title"
     >
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b border-gray-100 bg-slate-50/90 px-3 py-2.5 sm:px-4">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-gray-100 bg-slate-50/90 px-3 py-2">
         <h2
           id="business-summary-title"
           className="text-sm font-semibold tracking-tight text-gray-900"
         >
-          Resumen del día
+          Cómo va hoy
         </h2>
         <time
           dateTime={dateIso}
@@ -54,12 +54,12 @@ export function BusinessSummaryCard({
       </div>
 
       <dl className="grid grid-cols-2 divide-x divide-y divide-gray-100 bg-white lg:grid-cols-4 lg:divide-y-0">
-        <div className="p-3 sm:p-4 lg:py-4">
+        <div className="p-2.5 sm:p-3 lg:py-3">
           <dt className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-            Ventas del día
+            Facturación hoy
           </dt>
           <dd className="mt-1 space-y-1">
-            <p className="text-xl font-bold tabular-nums tracking-tight text-gray-900 sm:text-2xl">
+            <p className="text-lg font-bold tabular-nums tracking-tight text-gray-900 sm:text-xl">
               {ventas}
             </p>
             <p
@@ -78,16 +78,16 @@ export function BusinessSummaryCard({
           </dd>
         </div>
 
-        <div className="p-3 sm:p-4 lg:py-4">
+        <div className="p-2.5 sm:p-3 lg:py-3">
           <dt className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-            Pedidos hoy
+            Pedidos registrados
           </dt>
           <dd className="mt-1 space-y-1">
-            <p className="text-xl font-bold tabular-nums tracking-tight text-gray-900 sm:text-2xl">
+            <p className="text-lg font-bold tabular-nums tracking-tight text-gray-900 sm:text-xl">
               {pedidosHoy}
             </p>
             <p className="text-xs text-gray-500">
-              Ticket prom.{" "}
+              Ticket medio{" "}
               <span className="font-medium text-gray-700 tabular-nums">
                 {ticketPromedio}
               </span>
@@ -95,47 +95,47 @@ export function BusinessSummaryCard({
           </dd>
         </div>
 
-        <div className="p-3 sm:p-4 lg:py-4">
+        <div className="p-2.5 sm:p-3 lg:py-3">
           <dt className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-            Pendientes
+            Por completar
           </dt>
           <dd className="mt-1 space-y-1">
             {pendientes > 0 ? (
               <>
                 <Link
                   to="/punto-venta"
-                  className="block text-xl font-bold tabular-nums tracking-tight text-blue-700 hover:text-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-sm"
+                  className="block text-lg font-bold tabular-nums tracking-tight text-blue-700 hover:text-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-sm sm:text-xl"
                 >
                   {pendientes}
                 </Link>
-                <p className="text-xs text-gray-500">Ir a punto de venta</p>
+                <p className="text-xs text-gray-500">Revisalos en punto de venta</p>
               </>
             ) : (
               <>
-                <p className="text-xl font-bold tabular-nums tracking-tight text-gray-900 sm:text-2xl">
+                <p className="text-lg font-bold tabular-nums tracking-tight text-gray-900 sm:text-xl">
                   0
                 </p>
-                <p className="text-xs text-gray-500">Sin pedidos en cola</p>
+                <p className="text-xs text-gray-500">Nada pendiente en caja</p>
               </>
             )}
           </dd>
         </div>
 
-        <div className="p-3 sm:p-4 lg:py-4">
+        <div className="p-2.5 sm:p-3 lg:py-3">
           <dt className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-            Bajo mínimo
+            Stock bajo mínimo
           </dt>
           <dd className="mt-1 space-y-1">
             <Link
               to="/inventario"
               className={cn(
-                "block text-xl font-bold tabular-nums tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-sm",
+                "block text-lg font-bold tabular-nums tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-sm sm:text-xl",
                 alertasStock > 0 ? "text-amber-800" : "text-gray-900"
               )}
             >
               {alertasStock}
             </Link>
-            <p className="text-xs text-gray-500">Ítems en inventario</p>
+            <p className="text-xs text-gray-500">Productos a reponer</p>
           </dd>
         </div>
       </dl>

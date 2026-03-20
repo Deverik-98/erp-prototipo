@@ -14,7 +14,7 @@ import { CategoryMixCard, SalesTrendCard } from "./DashboardCharts";
 export function DashboardVisualAnalysis() {
   return (
     <section
-      aria-label="Análisis visual opcional"
+      aria-label="Gráficos opcionales de ventas"
       className="mb-6 sm:mb-8"
     >
       <Collapsible defaultOpen={false}>
@@ -22,10 +22,11 @@ export function DashboardVisualAnalysis() {
           <CollapsibleTrigger className="group flex w-full items-start gap-3 px-4 py-4 text-left transition-colors hover:bg-gray-50 sm:items-center sm:gap-4 sm:px-5 sm:py-5 [&[data-state=open]]:bg-gray-50/80">
             <div className="min-w-0 flex-1">
               <h2 className="text-base font-bold text-gray-900 sm:text-lg">
-                Análisis visual
+                Tendencias y categorías
               </h2>
               <p className="mt-0.5 text-sm text-gray-600">
-                Ventas por día y mix por categoría.
+                Gráficos para profundizar: evolución diaria y participación por
+                rubro.
               </p>
             </div>
             <ChevronDown

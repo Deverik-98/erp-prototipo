@@ -21,12 +21,10 @@ import {
   TableRow,
 } from "../components/ui/table";
 import { Badge } from "../components/ui/badge";
-import { MonthlyReportCard } from "../components/dashboard/MonthlyReportCard";
-import { CriticalStockCard } from "../components/dashboard/CriticalStockCard";
 import { BusinessSummaryCard } from "../components/dashboard/BusinessSummaryCard";
+import { DashboardStockContextSection } from "../components/dashboard/DashboardStockContextSection";
 import { DashboardVisualAnalysis } from "../components/dashboard/DashboardVisualAnalysis";
-import { DashboardHeroHeader } from "../components/dashboard/DashboardHeroHeader";
-import { CompactPeriodKpis } from "../components/dashboard/CompactPeriodKpis";
+import { DashboardTopBar } from "../components/dashboard/DashboardTopBar";
 
 const LOW_STOCK_COUNT = 7;
 const PEDIDOS_HOY = 8;
@@ -35,25 +33,25 @@ const TICKET_PROMEDIO = "$ 382";
 const secondaryKpis = [
   {
     id: "ticket",
-    title: "Ticket promedio",
+    title: "Ticket medio",
     value: TICKET_PROMEDIO,
-    hint: "Últimos 7 días",
+    hint: "Por pedido en la semana",
     trend: "neutral" as const,
     icon: Receipt,
   },
   {
     id: "clientes",
-    title: "Clientes activos",
+    title: "Clientes con compra",
     value: "24",
-    hint: "Compraron en los últimos 7 días",
+    hint: "Al menos una compra esta semana",
     trend: "neutral" as const,
     icon: Users,
   },
   {
     id: "pedidos-7d",
-    title: "Pedidos (7 días)",
+    title: "Pedidos",
     value: "47",
-    hint: "+14% vs. semana anterior",
+    hint: "14% más que la semana pasada",
     trend: "up" as const,
     icon: CalendarDays,
   },
@@ -128,13 +126,13 @@ const quickActions = [
     to: "/punto-venta",
     label: "Nuevo pedido",
     icon: ShoppingCart,
-    description: "POS",
+    description: "Abrir POS",
   },
   {
     to: "/inventario",
     label: "Inventario",
     icon: Package,
-    description: "Stock",
+    description: "Productos y stock",
   },
   {
     to: "/clientes",
@@ -144,9 +142,9 @@ const quickActions = [
   },
   {
     to: "/inventario",
-    label: "Bajo stock",
+    label: "Revisar stock",
     icon: AlertCircle,
-    description: `${LOW_STOCK_COUNT} ítems`,
+    description: `${LOW_STOCK_COUNT} bajo mínimo`,
   },
 ] as const;
 
@@ -171,22 +169,23 @@ export function Dashboard() {
       <p className="mb-4 flex items-start gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600 sm:text-sm">
         <Info className="mt-0.5 size-4 shrink-0 text-gray-400" aria-hidden />
         <span>
-          <span className="font-medium text-gray-700">Demostración.</span>{" "}
-          Datos de ejemplo para validar flujos; en producción vendrían del servidor.
+          <span className="font-medium text-gray-800">Modo demostración.</span>{" "}
+          Los números y pedidos son de ejemplo para probar la app; en producción
+          se sincronizarían con tu operación real.
         </span>
       </p>
 
-      <DashboardHeroHeader dateLong={dateStr} syncStamp={summaryStamp} />
+      <DashboardTopBar dateLong={dateStr} syncStamp={summaryStamp} />
 
       <section aria-labelledby="dash-summary" className="mb-6 sm:mb-8">
         <h2 id="dash-summary" className="sr-only">
-          Resumen del día y accesos
+          Indicadores del día y accesos rápidos
         </h2>
         <BusinessSummaryCard
           dateIso={now.toISOString()}
           dateDisplay={summaryStamp}
           ventas="$ 12.450"
-          ventasVsAyer="+12,5% vs. ayer mismo día"
+          ventasVsAyer="+12,5% respecto a ayer a esta hora"
           ventasSube
           pedidosHoy={PEDIDOS_HOY}
           ticketPromedio={TICKET_PROMEDIO}
@@ -194,8 +193,8 @@ export function Dashboard() {
           alertasStock={LOW_STOCK_COUNT}
         />
         <nav
-          aria-label="Accesos rápidos"
-          className="mt-3 flex flex-wrap gap-2 sm:mt-4 sm:flex-nowrap sm:gap-2 sm:overflow-x-auto sm:pb-0.5"
+          aria-label="Atajos frecuentes"
+          className="mt-3 grid w-full grid-cols-2 gap-2 sm:mt-4 sm:grid-cols-4"
         >
           {quickActions.map((action) => {
             const Icon = action.icon;
@@ -204,13 +203,13 @@ export function Dashboard() {
                 key={action.label}
                 variant="outline"
                 size="sm"
-                className="h-9 shrink-0 gap-2 border-gray-200 bg-white px-3 shadow-sm hover:bg-gray-50"
+                className="h-11 w-full justify-center gap-2 border-gray-200 bg-white px-2 shadow-sm hover:bg-gray-50 sm:px-3"
                 asChild
               >
                 <Link to={action.to}>
-                  <Icon className="size-4 text-blue-600" aria-hidden />
-                  <span className="font-medium">{action.label}</span>
-                  <span className="hidden text-xs font-normal text-gray-500 sm:inline">
+                  <Icon className="size-4 shrink-0 text-blue-600" aria-hidden />
+                  <span className="min-w-0 truncate font-medium">{action.label}</span>
+                  <span className="hidden text-xs font-normal text-gray-500 sm:inline sm:truncate">
                     · {action.description}
                   </span>
                 </Link>
@@ -225,17 +224,9 @@ export function Dashboard() {
           id="dash-inventory-month"
           className="mb-3 text-sm font-semibold text-gray-900"
         >
-          Inventario y contexto del mes
+          Stock prioritario y reporte del mes
         </h2>
-        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-5 lg:gap-5">
-          <div className="lg:col-span-3">
-            <CriticalStockCard />
-          </div>
-          <div className="flex flex-col gap-4 lg:col-span-2">
-            <MonthlyReportCard />
-            <CompactPeriodKpis items={secondaryKpis} />
-          </div>
-        </div>
+        <DashboardStockContextSection kpiItems={secondaryKpis} />
       </section>
 
       <DashboardVisualAnalysis />
@@ -245,12 +236,12 @@ export function Dashboard() {
           id="dash-orders"
           className="mb-3 text-sm font-semibold text-gray-900 sm:mb-4"
         >
-          Últimos pedidos
+          Movimiento reciente
         </h2>
         <Card className="p-4 sm:p-6">
           <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-gray-500">
-              Registrados en punto de venta (ejemplo).
+            <p className="text-sm text-gray-600">
+              Últimos pedidos cargados en punto de venta (datos de ejemplo).
             </p>
             <Button
               variant="outline"
@@ -259,7 +250,7 @@ export function Dashboard() {
               asChild
             >
               <Link to="/punto-venta" className="gap-2">
-                Ver en POS
+                Ir al punto de venta
                 <ArrowRight className="size-4" aria-hidden />
               </Link>
             </Button>
@@ -267,7 +258,7 @@ export function Dashboard() {
 
           <ul
             className="space-y-3 md:hidden"
-            aria-label="Últimos pedidos en vista compacta"
+            aria-label="Movimiento reciente en vista compacta"
           >
             {recentOrders.map((order) => (
               <li key={order.id}>
@@ -297,14 +288,14 @@ export function Dashboard() {
           <div className="hidden overflow-x-auto md:block">
             <Table className="min-w-[640px]">
               <caption className="sr-only">
-                Tabla de los últimos pedidos con cliente, fecha, productos y total
+                Pedidos recientes: cliente, fecha, productos, total y estado
               </caption>
               <TableHeader>
                 <TableRow>
-                  <TableHead scope="col">ID pedido</TableHead>
+                  <TableHead scope="col">Pedido</TableHead>
                   <TableHead scope="col">Cliente</TableHead>
                   <TableHead scope="col">Fecha y hora</TableHead>
-                  <TableHead scope="col">Productos</TableHead>
+                  <TableHead scope="col">Detalle</TableHead>
                   <TableHead scope="col">Total</TableHead>
                   <TableHead scope="col">Estado</TableHead>
                 </TableRow>
