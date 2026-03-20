@@ -49,15 +49,39 @@ Este es un **prototipo funcional frontend** de un ERP B2B SaaS para digitalizar 
 
 ---
 
-## Git Flow
+## Git Flow (obligatorio para el asistente y el equipo)
 
-- **main:** Código estable listo para producción/demo. Solo merges desde develop o hotfix.
-- **develop:** Rama de integración. Todas las features se integran aquí.
-- **feature/*:** Nuevas funcionalidades (ej: `feature/importacion-excel`).
-- **hotfix/*:** Correcciones urgentes en main.
-- **release/*:** Preparación de releases (opcional para prototipo).
+**Objetivo:** evitar commits directos en `develop` o `main` y mantener historial con merges explícitos.
 
-Flujo: crear rama desde develop → trabajar → merge a develop → cuando esté listo, merge develop → main.
+### Ramas
+
+- **`main`:** Solo demo/estable. **No commitear aquí** salvo hotfix acordado.
+- **`develop`:** Integración. **No commitear aquí trabajo de feature**; solo recibir merges desde `feature/*` (o hotfix mergeado).
+- **`feature/*`:** Todo cambio de producto, refactor grande, o ajuste de tooling/docs que deba versionarse (ej. `feature/inventario-filtros`, `feature/cursorrules-gitflow`).
+- **`hotfix/*`:** Solo correcciones urgentes partiendo de `main`; luego merge a `main` y a `develop`.
+
+### Flujo que debe seguirse (sin excepciones habituales)
+
+1. `git checkout develop` → `git pull origin develop`
+2. `git checkout -b feature/nombre-descriptivo`
+3. Commits en la rama `feature/*` únicamente.
+4. Integrar a develop con **merge explícito** (no fast-forward):  
+   `git checkout develop` → `git merge feature/nombre --no-ff -m "Merge branch 'feature/nombre' into develop"`
+5. Borrar la rama feature integrada: `git branch -d feature/nombre` (y `git push origin --delete feature/nombre` si existía en remoto).
+6. Publicar `develop`: `git push origin develop`
+7. Llevar a `main` cuando corresponda la demo:  
+   `git checkout main` → `git pull origin main` → `git merge develop --no-ff -m "Merge branch 'develop' into main"` → `git push origin main`
+
+### Prohibido / restricciones para el asistente (Composer/Agent)
+
+- **No** hacer `git commit` en `develop` o `main` para trabajo de feature.
+- **No** fusionar `develop` → `main` sin que antes el trabajo haya entrado a `develop` vía `feature/*` (salvo hotfix documentado).
+- **No** usar `git push --force` ni `--force-with-lease` a `main`/`develop` **salvo** que el usuario lo pida explícitamente (reparación de historial).
+- Tras un merge a `develop`, **recordar** push de `develop`; si el usuario pidió dejar `main` al día, merge `--no-ff` desde `develop` y push de `main`.
+
+### Recordatorio
+
+El README del repo también describe este flujo; mantener `.cursorrules` y README alineados si cambia el proceso.
 
 ---
 
