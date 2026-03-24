@@ -79,10 +79,10 @@ const navSections: NavSection[] = [
         hint: "Stock, exportación CSV, valor y agrupación",
       },
       {
-        path: "/punto-venta",
+        path: "/ventas",
         icon: ShoppingCart,
         label: "Ventas",
-        hint: "Cargar pedido, carrito y cobro",
+        hint: "Nueva venta, historial y recibos",
       },
       {
         path: "/clientes",
