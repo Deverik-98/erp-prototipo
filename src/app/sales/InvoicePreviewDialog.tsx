@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Download, Printer, X } from "lucide-react";
+import { Download, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -8,12 +8,8 @@ import {
   DialogTitle,
 } from "../components/ui/dialog";
 import { Button } from "../components/ui/button";
-import { appToast } from "../lib/appToast";
-import {
-  buildInvoiceHtml,
-  downloadInvoiceHtml,
-  printInvoiceInNewWindow,
-} from "./invoiceHtml";
+import { buildInvoiceHtml } from "./invoiceHtml";
+import { simulatePdfDownload } from "./simulatePdfDownload";
 import type { SaleRecord } from "./sales.types";
 
 type InvoicePreviewDialogProps = {
@@ -38,8 +34,8 @@ export function InvoicePreviewDialog({
         <DialogHeader className="shrink-0 space-y-1 border-b border-gray-100 px-4 py-4 text-left sm:px-6">
           <DialogTitle className="pr-10 text-lg">Recibo de pago</DialogTitle>
           <DialogDescription className="text-sm">
-            Vista previa del comprobante no fiscal (demo). Podés descargarlo como
-            HTML o imprimir / guardar como PDF desde el navegador.
+            Vista previa del comprobante no fiscal (demo). La descarga en PDF se simula
+            desde el botón inferior; no se abre otra pestaña ni se sale de esta página.
           </DialogDescription>
         </DialogHeader>
 
@@ -49,7 +45,7 @@ export function InvoicePreviewDialog({
               title="Vista previa del recibo"
               srcDoc={srcDoc}
               className="h-[min(60vh,520px)] w-full border-0 bg-white"
-              sandbox="allow-modals allow-same-origin"
+              sandbox="allow-same-origin"
             />
           ) : null}
         </div>
@@ -66,43 +62,15 @@ export function InvoicePreviewDialog({
           </Button>
           <Button
             type="button"
-            variant="outline"
             className="w-full gap-2 sm:w-auto"
             disabled={!sale}
             onClick={() => {
               if (!sale) return;
-              if (!printInvoiceInNewWindow(sale)) {
-                appToast.error("No se pudo abrir la impresión", {
-                  description:
-                    "El navegador bloqueó la ventana emergente. Permití ventanas para este sitio o usá “Descargar”.",
-                });
-              }
-            }}
-          >
-            <Printer className="size-4" aria-hidden />
-            Imprimir / PDF
-          </Button>
-          <Button
-            type="button"
-            className="w-full gap-2 sm:w-auto"
-            disabled={!sale}
-            onClick={() => {
-              if (!sale) return;
-              try {
-                downloadInvoiceHtml(sale);
-                appToast.success("Recibo descargado", {
-                  description:
-                    "Abrí el archivo .html y usá Imprimir → Guardar como PDF si lo necesitás.",
-                });
-              } catch {
-                appToast.error("No se pudo descargar", {
-                  description: "Intentá de nuevo o usá Imprimir / PDF.",
-                });
-              }
+              simulatePdfDownload(sale);
             }}
           >
             <Download className="size-4" aria-hidden />
-            Descargar HTML
+            Descargar PDF
           </Button>
         </div>
       </DialogContent>

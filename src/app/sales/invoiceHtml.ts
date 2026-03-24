@@ -127,38 +127,11 @@ export function buildInvoiceHtml(sale: SaleRecord): string {
       </div>
 
       <div class="foot">
-        Este archivo es una simulación de recibo para pruebas de ${esc(APP_NAME)}. No reemplaza factura electrónica ni comprobante autorizado.
-        Podés imprimirlo o guardarlo como PDF desde el menú de impresión del navegador.
+        Vista previa de recibo para pruebas de ${esc(APP_NAME)}. No reemplaza factura electrónica ni comprobante autorizado.
+        La descarga en PDF se simula desde la aplicación (prototipo).
       </div>
     </div>
   </div>
 </body>
 </html>`;
-}
-
-export function downloadInvoiceHtml(sale: SaleRecord) {
-  const html = buildInvoiceHtml(sale);
-  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `recibo-${sale.receiptNumber}-${sale.id}.html`;
-  a.rel = "noopener";
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-/** Abre ventana de impresión; devuelve false si el popup fue bloqueado. */
-export function printInvoiceInNewWindow(sale: SaleRecord): boolean {
-  const html = buildInvoiceHtml(sale);
-  const w = window.open("", "_blank", "noopener,noreferrer");
-  if (!w) return false;
-  w.document.open();
-  w.document.write(html);
-  w.document.close();
-  w.focus();
-  requestAnimationFrame(() => {
-    w.print();
-  });
-  return true;
 }

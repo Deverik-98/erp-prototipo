@@ -18,8 +18,7 @@ import {
   TableRow,
 } from "../components/ui/table";
 import { EmptyState } from "../components/feedback/PageStates";
-import { appToast } from "../lib/appToast";
-import { downloadInvoiceHtml } from "./invoiceHtml";
+import { simulatePdfDownload } from "./simulatePdfDownload";
 import { useSalesHistory } from "./SalesHistoryContext";
 import type { SaleRecord } from "./sales.types";
 
@@ -55,17 +54,8 @@ export function SalesHistoryTab({ onViewReceipt }: SalesHistoryTabProps) {
     );
   }, [sales, query]);
 
-  const handleDownload = (sale: SaleRecord) => {
-    try {
-      downloadInvoiceHtml(sale);
-      appToast.success("Recibo descargado", {
-        description: `Archivo del recibo N.º ${sale.receiptNumber} generado de nuevo.`,
-      });
-    } catch {
-      appToast.error("No se pudo descargar", {
-        description: "Intentá de nuevo o abrí el recibo e imprimí a PDF.",
-      });
-    }
+  const handlePdfSimulated = (sale: SaleRecord) => {
+    simulatePdfDownload(sale);
   };
 
   return (
@@ -128,7 +118,7 @@ export function SalesHistoryTab({ onViewReceipt }: SalesHistoryTabProps) {
                     Total
                   </TableHead>
                   <TableHead scope="col" className="text-right">
-                    Recibo
+                    Acciones
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -175,10 +165,10 @@ export function SalesHistoryTab({ onViewReceipt }: SalesHistoryTabProps) {
                           variant="ghost"
                           size="sm"
                           className="h-8 gap-1 px-2 text-xs"
-                          onClick={() => handleDownload(sale)}
+                          onClick={() => handlePdfSimulated(sale)}
                         >
                           <Download className="size-3.5" aria-hidden />
-                          Descargar
+                          PDF
                         </Button>
                       </div>
                     </TableCell>

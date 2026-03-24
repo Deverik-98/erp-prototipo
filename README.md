@@ -12,7 +12,7 @@ Aplicación web interna con panel de control, inventario, ventas (POS + historia
 
 - **Inicio (dashboard):** Saludo + sucursal → “Cómo va hoy” → atajos → **un solo card** “Stock y contexto” (`DashboardStockContextSection`): izquierda lista compacta de alertas (sin grid 3× que estira filas) + CTA; derecha KPIs **layout strip** + **Cierre del mes** → gráficos → movimiento reciente
 - **Inventario:** KPIs según filtros; **agrupación** con **colapsables** (totales por grupo: líneas, stock u., valor, alertas) y detalle al expandir; filtro **Origen** (producción interna vs. compra · distribución); **export CSV**; **modal de alta** en 2 pestañas (datos generales + variantes con tipos de atributo reutilizables o SKU único); catálogo en estado local (demo). *MVP:* sin MRP/BOM; variantes como filas de inventario independientes (escalable a matriz talla×color en backend).
-- **Ventas:** Nueva venta (pedido tipo WhatsApp, carrito, descuentos, medios de pago); **historial** con búsqueda; **recibo** estilo factura de pago (HTML descargable / imprimir a PDF). Ruta: `/ventas` (antes `/punto-venta` redirige).
+- **Ventas:** Nueva venta (pedido tipo WhatsApp, carrito, descuentos, medios de pago); **historial** con búsqueda; **recibo** con vista previa en pantalla y **descarga PDF simulada** (prototipo, sin archivo). Ruta: `/ventas` (antes `/punto-venta` redirige).
 - **Clientes:** Directorio con búsqueda, alta de nuevos clientes
 - **Configuración:** Roles (Admin, Cajero), bitácora de actividad
 
