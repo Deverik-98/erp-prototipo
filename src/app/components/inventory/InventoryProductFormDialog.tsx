@@ -1,5 +1,5 @@
 import { useEffect, useId, useState } from "react";
-import { toast } from "sonner";
+import { appToast } from "../../lib/appToast";
 import { Layers, PackagePlus, Plus, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
 import {
@@ -188,9 +188,10 @@ export function InventoryProductFormDialog({
         });
       }
       if (rows.length === 0) {
-        toast.error(
-          "Agregá al menos una variante con valor y sufijo de SKU, o activá “Solo un SKU”."
-        );
+        appToast.error("Faltan datos para guardar", {
+          description:
+            "Agregá al menos una variante con valor y sufijo de SKU, o activá “Solo un SKU”. Revisá los campos marcados en la pestaña Variantes.",
+        });
         return;
       }
     }
