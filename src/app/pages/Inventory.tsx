@@ -304,7 +304,7 @@ export function Inventory() {
     }
     const d = new Date();
     const stamp = d.toISOString().slice(0, 10);
-    downloadInventoryCsv(filteredData, `inventario-zumaapp-${stamp}.csv`);
+    downloadInventoryCsv(filteredData, `inventario-demoapp-${stamp}.csv`);
     toast.success(
       `Exportadas ${filteredData.length} fila(s). Archivo listo para abrir en Excel.`,
       { duration: 4000 }

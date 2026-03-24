@@ -68,7 +68,7 @@ export function SalesTrendCard({ variant = "standalone" }: { variant?: ChartVari
             margin={{ top: 8, right: 8, left: -18, bottom: 0 }}
           >
             <defs>
-              <linearGradient id="fillVentasZuma" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="fillVentasDemo" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.35} />
                 <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.02} />
               </linearGradient>
@@ -101,7 +101,7 @@ export function SalesTrendCard({ variant = "standalone" }: { variant?: ChartVari
               dataKey="ventas"
               stroke="#2563eb"
               strokeWidth={2}
-              fill="url(#fillVentasZuma)"
+              fill="url(#fillVentasDemo)"
               name="Ventas"
             />
           </AreaChart>

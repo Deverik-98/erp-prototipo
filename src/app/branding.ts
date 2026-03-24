@@ -1,5 +1,5 @@
 /** Marca y datos de sesión demo (prototipo). */
-export const APP_NAME = "ZumaApp";
+export const APP_NAME = "DemoApp";
 export const APP_TAGLINE = "Sistema de gestión";
 
 export const SESSION_DISPLAY_NAME = "Epacheco";
@@ -11,5 +11,5 @@ export const PLACEHOLDER_FULL_NAME = "Erikson Pacheco";
 export const PLACEHOLDER_EMAIL = "pachecoerikson@gmail.com";
 
 export function logoUrl(): string {
-  return `${import.meta.env.BASE_URL}zumaapp-logo.svg`;
+  return `${import.meta.env.BASE_URL}demoapp-logo.svg`;
 }
