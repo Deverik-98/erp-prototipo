@@ -30,7 +30,7 @@ export function InvoicePreviewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[min(92vh,880px)] w-[calc(100%-1.5rem)] max-w-3xl flex-col gap-0 overflow-hidden p-0 sm:max-w-3xl">
+      <DialogContent className="flex max-h-[min(92vh,900px)] w-[calc(100%-1rem)] max-w-[min(100vw-1rem,28rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-[min(100vw-2rem,28rem)]">
         <DialogHeader className="shrink-0 space-y-1 border-b border-gray-100 px-4 py-4 text-left sm:px-6">
           <DialogTitle className="pr-10 text-lg">Recibo de pago</DialogTitle>
           <DialogDescription className="text-sm">
@@ -39,12 +39,12 @@ export function InvoicePreviewDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="min-h-0 flex-1 overflow-hidden bg-gray-100">
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#e8e8ea]">
           {sale ? (
             <iframe
               title="Vista previa del recibo"
               srcDoc={srcDoc}
-              className="h-[min(60vh,520px)] w-full border-0 bg-white"
+              className="block min-h-[min(52vh,420px)] h-[min(72vh,640px)] w-full min-w-0 border-0 bg-[#e8e8ea]"
               sandbox="allow-same-origin"
             />
           ) : null}

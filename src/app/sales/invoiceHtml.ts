@@ -9,128 +9,324 @@ function esc(s: string) {
     .replace(/"/g, "&quot;");
 }
 
-const money = new Intl.NumberFormat("es-AR", {
+/** Importes en pesos, estilo ticket. */
+const money0 = new Intl.NumberFormat("es-AR", {
   style: "currency",
   currency: "ARS",
   maximumFractionDigits: 0,
 });
 
-const dateLong = new Intl.DateTimeFormat("es-AR", {
-  dateStyle: "long",
-  timeStyle: "short",
+const money2 = new Intl.NumberFormat("es-AR", {
+  style: "currency",
+  currency: "ARS",
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
 });
 
-/** Documento HTML autocontenido: aspecto de recibo / factura de pago (solo demo, no fiscal). */
+const IVA_RATE = 0.21;
+
+function formatReceiptDate(d: Date) {
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  return `${dd}-${mm}-${yyyy}`;
+}
+
+function formatReceiptTime(d: Date) {
+  return d.toLocaleTimeString("es-AR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
+/** Código de barras simulado (solo visual, coherente por venta). */
+function barcodeBarsHtml(seed: string): string {
+  let h = 2166136261;
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  const parts: string[] = [];
+  for (let i = 0; i < 52; i++) {
+    const w = 1 + (Math.abs(h >>> (i % 28)) % 3);
+    h = (h * 31 + i) | 0;
+    parts.push(`<span class="bc-bar" style="width:${w}px"></span>`);
+  }
+  return `<div class="bc-bars" aria-hidden="true">${parts.join("")}</div>`;
+}
+
+function footerSerial(saleId: string): string {
+  let h = 0;
+  for (let i = 0; i < saleId.length; i++) h = (h * 33 + saleId.charCodeAt(i)) % 1e9;
+  const a = String(h).padStart(7, "0").slice(0, 7);
+  return `Z1B${a}`;
+}
+
+/**
+ * HTML autocontenido: ticket térmico / factura simplificada (demo, no fiscal).
+ * Layout responsive: ancho fluido hasta ~26rem, centrado, tipografía monoespaciada.
+ */
 export function buildInvoiceHtml(sale: SaleRecord): string {
-  const rows = sale.items
-    .map(
-      (it) => `
-    <tr>
-      <td>${esc(it.name)}</td>
-      <td class="num">${it.quantity}</td>
-      <td class="num">${money.format(it.unitPrice)}</td>
-      <td class="num">${money.format(it.unitPrice * it.quantity)}</td>
-    </tr>`
-    )
+  const issued = new Date(sale.issuedAt);
+  const fecha = formatReceiptDate(issued);
+  const hora = formatReceiptTime(issued);
+  const facturaDisplay = sale.receiptNumber.padStart(8, "0");
+
+  const itemRows = sale.items
+    .map((it) => {
+      const code = String(it.productId).padStart(8, "0");
+      const nameU = esc(it.name.toUpperCase());
+      const line = it.unitPrice * it.quantity;
+      return `
+      <div class="it">
+        <div class="it-qty">${it.quantity} x ${money2.format(it.unitPrice)}</div>
+        <div class="it-line">
+          <span class="it-desc">${code} ${nameU} (G)</span>
+          <span class="it-amt">${money2.format(line)}</span>
+        </div>
+      </div>`;
+    })
     .join("");
 
-  const issued = dateLong.format(new Date(sale.issuedAt));
+  const total = sale.total;
+  const biGravado = total / (1 + IVA_RATE);
+  const ivaMonto = total - biGravado;
+
+  const discountBlock =
+    sale.discountPct > 0 && sale.discountAmount > 0
+      ? `<div class="t-row"><span>DESCUENTO (${sale.discountPct}%)</span><span>− ${money2.format(sale.discountAmount)}</span></div>`
+      : "";
+
+  const payLine = `${esc(sale.paymentMethodLabel.toUpperCase())} 1`;
+
+  const bc = barcodeBarsHtml(`${sale.id}-${sale.receiptNumber}`);
+  const serial = footerSerial(sale.id);
+  const barcodeDigits = `${facturaDisplay}${String(sale.customerId).padStart(4, "0")}`;
 
   return `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Recibo ${esc(sale.receiptNumber)} — ${esc(APP_NAME)}</title>
+  <title>FACTURA ${esc(sale.receiptNumber)} — ${esc(APP_NAME)}</title>
   <style>
     * { box-sizing: border-box; }
-    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 24px; color: #111827; background: #f3f4f6; }
-    .sheet { max-width: 720px; margin: 0 auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-    .inner { padding: 28px 32px 32px; }
-    .ribbon { background: linear-gradient(90deg, #1d4ed8, #2563eb); color: #fff; padding: 10px 32px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; border-radius: 4px 4px 0 0; }
-    .head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 2px solid #1d4ed8; }
-    .brand { font-size: 22px; font-weight: 800; color: #1e3a8a; letter-spacing: -0.02em; }
-    .sub { font-size: 12px; color: #6b7280; margin-top: 4px; }
-    .meta { text-align: right; font-size: 13px; }
-    .meta strong { display: block; font-size: 15px; color: #111827; }
-    .badge { display: inline-block; margin-top: 8px; padding: 4px 10px; background: #fef3c7; color: #92400e; font-size: 11px; font-weight: 600; border-radius: 4px; border: 1px solid #fcd34d; }
-    .block { margin-bottom: 20px; }
-    .block h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #6b7280; margin: 0 0 8px; }
-    .block p { margin: 0; font-size: 14px; line-height: 1.5; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 8px; }
-    th { text-align: left; padding: 10px 8px; background: #f9fafb; border-bottom: 2px solid #e5e7eb; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: #4b5563; }
-    td { padding: 10px 8px; border-bottom: 1px solid #f3f4f6; vertical-align: top; }
-    td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .totals { margin-top: 12px; margin-left: auto; max-width: 280px; font-size: 14px; }
-    .totals .row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f3f4f6; }
-    .totals .grand { font-size: 18px; font-weight: 800; color: #1d4ed8; border-bottom: none; margin-top: 4px; padding-top: 12px; border-top: 2px solid #e5e7eb; }
-    .foot { margin-top: 28px; padding-top: 16px; border-top: 1px dashed #d1d5db; font-size: 11px; color: #6b7280; line-height: 1.5; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: ui-monospace, "Cascadia Code", "Consolas", "Courier New", Courier, monospace;
+      font-size: clamp(0.7rem, 2.8vw, 0.8125rem);
+      line-height: 1.35;
+      color: #0a0a0a;
+      background: #e8e8ea;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: clamp(0.5rem, 3vw, 1.25rem);
+    }
+    .paper {
+      width: 100%;
+      max-width: min(100%, 26rem);
+      background: #faf9f7;
+      color: #111;
+      padding: clamp(0.75rem, 4vw, 1.125rem) clamp(0.65rem, 3.5vw, 1rem);
+      border: 1px solid #c8c8c8;
+      box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    }
+    .demo-stamp {
+      text-align: center;
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #555;
+      margin-bottom: 0.35rem;
+    }
+    .brand {
+      text-align: center;
+      font-weight: 800;
+      font-size: clamp(0.95rem, 4vw, 1.15rem);
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .legal {
+      text-align: center;
+      font-size: 0.68rem;
+      color: #333;
+      margin-top: 0.35rem;
+      line-height: 1.45;
+    }
+    .caja {
+      text-align: center;
+      font-size: 0.72rem;
+      margin-top: 0.5rem;
+    }
+    hr.d {
+      border: none;
+      border-top: 1px dashed #333;
+      margin: 0.65rem 0;
+    }
+    .sec-title { font-size: 0.68rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .cli { font-size: 0.72rem; line-height: 1.5; }
+    .factura-title {
+      text-align: center;
+      font-size: clamp(0.85rem, 3.5vw, 1rem);
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      margin: 0.35rem 0 0.5rem;
+    }
+    .meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.15rem 0.75rem;
+      font-size: 0.72rem;
+    }
+    .meta-k { color: #333; }
+    .meta-v { text-align: right; font-weight: 600; }
+    .it { margin-bottom: 0.45rem; }
+    .it-qty { font-size: 0.68rem; color: #333; }
+    .it-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.35rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+    .it-desc {
+      flex: 1;
+      min-width: 0;
+      word-break: break-word;
+      text-transform: uppercase;
+    }
+    .it-amt {
+      flex-shrink: 0;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .t-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.72rem;
+      padding: 0.2rem 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .t-row span:last-child { text-align: right; white-space: nowrap; }
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-top: 0.35rem;
+      padding-top: 0.45rem;
+      border-top: 2px solid #111;
+      font-size: clamp(0.88rem, 3.8vw, 1.05rem);
+      font-weight: 800;
+    }
+    .pay {
+      font-size: 0.72rem;
+      margin-top: 0.35rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .thanks {
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+      margin: 0.65rem 0 0.5rem;
+    }
+    .bc-wrap { margin: 0.5rem auto 0.25rem; max-width: 100%; }
+    .bc-bars {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      height: 2.25rem;
+      gap: 0;
+      overflow: hidden;
+    }
+    .bc-bar {
+      display: block;
+      align-self: stretch;
+      background: #111;
+      margin-right: 1px;
+      min-height: 40%;
+    }
+    .bc-bar:nth-child(odd) { min-height: 100%; }
+    .bc-num {
+      text-align: center;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      font-variant-numeric: tabular-nums;
+    }
+    .foot-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.62rem;
+      color: #555;
+      margin-top: 0.65rem;
+    }
+    .fine {
+      margin-top: 0.75rem;
+      font-size: 0.62rem;
+      color: #666;
+      line-height: 1.45;
+      text-align: center;
+    }
     @media print {
       body { background: #fff; padding: 0; }
-      .sheet { box-shadow: none; border: none; max-width: none; }
-      .ribbon { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .paper { box-shadow: none; border: none; max-width: none; }
     }
   </style>
 </head>
 <body>
-  <div class="sheet">
-    <div class="ribbon">Comprobante no fiscal — Recibo de pago (demostración)</div>
-    <div class="inner">
-      <div class="head">
-        <div>
-          <div class="brand">${esc(APP_NAME)}</div>
-          <div class="sub">Documento generado en prototipo · Sin validez fiscal ante AFIP</div>
-          <span class="badge">Solo uso interno / demo</span>
-        </div>
-        <div class="meta">
-          <strong>Recibo N.º ${esc(sale.receiptNumber)}</strong>
-          <div>Venta: <strong>${esc(sale.id)}</strong></div>
-          <div style="margin-top:6px;color:#4b5563;">${esc(issued)}</div>
-        </div>
-      </div>
-
-      <div class="block">
-        <h3>Cliente</h3>
-        <p><strong>${esc(sale.customerName)}</strong><br />
-        Tel. ${esc(sale.customerPhone)}<br />
-        Ref. interna cliente #${sale.customerId}</p>
-      </div>
-
-      <div class="block">
-        <h3>Detalle</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th class="num">Cant.</th>
-              <th class="num">P. unit.</th>
-              <th class="num">Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-
-      <div class="totals">
-        <div class="row"><span>Subtotal</span><span>${money.format(sale.subtotal)}</span></div>
-        ${
-          sale.discountPct > 0
-            ? `<div class="row"><span>Descuento (${sale.discountPct}%)</span><span>− ${money.format(sale.discountAmount)}</span></div>`
-            : ""
-        }
-        <div class="row grand"><span>Total cobrado</span><span>${money.format(sale.total)}</span></div>
-      </div>
-
-      <div class="block" style="margin-top:20px;">
-        <h3>Forma de pago</h3>
-        <p>${esc(sale.paymentMethodLabel)}</p>
-      </div>
-
-      <div class="foot">
-        Vista previa de recibo para pruebas de ${esc(APP_NAME)}. No reemplaza factura electrónica ni comprobante autorizado.
-        La descarga en PDF se simula desde la aplicación (prototipo).
-      </div>
+  <div class="paper">
+    <div class="demo-stamp">Comprobante no válido como factura fiscal · Demo ${esc(APP_NAME)}</div>
+    <div class="brand">${esc(APP_NAME)}</div>
+    <div class="legal">
+      Razón social de ejemplo S.A.<br />
+      Av. Corrientes 1234, CABA · Argentina<br />
+      Tel. +54 11 0000-0000 · ${esc(APP_NAME)} POS
     </div>
+    <div class="caja">CAJA 01</div>
+    <hr class="d" />
+    <div class="sec-title">Información del cliente</div>
+    <div class="cli">
+      <strong>${esc(sale.customerName)}</strong><br />
+      Tel. ${esc(sale.customerPhone)} · Ref. #${sale.customerId}
+    </div>
+    <hr class="d" />
+    <div class="factura-title">FACTURA</div>
+    <div class="meta">
+      <span class="meta-k">FACTURA:</span>
+      <span class="meta-v">${esc(facturaDisplay)}</span>
+      <span class="meta-k">FECHA:</span>
+      <span class="meta-v">${esc(fecha)}</span>
+      <span class="meta-k">HORA:</span>
+      <span class="meta-v">${esc(hora)}</span>
+    </div>
+    <hr class="d" />
+    ${itemRows}
+    <hr class="d" />
+    <div class="t-row"><span>EXENTO (E)</span><span>${money2.format(0)}</span></div>
+    ${discountBlock}
+    <div class="t-row"><span>BI G (21,00%)</span><span>${money2.format(biGravado)}</span></div>
+    <div class="t-row"><span>IVA G (21,00%)</span><span>${money2.format(ivaMonto)}</span></div>
+    <div class="total-row"><span>TOTAL</span><span>${money2.format(total)}</span></div>
+    <div class="pay"><span>${payLine}</span><span>${money2.format(total)}</span></div>
+    <hr class="d" />
+    <div class="thanks">GRACIAS POR SU VISITA</div>
+    <div class="bc-wrap">${bc}</div>
+    <div class="bc-num">${esc(barcodeDigits)}</div>
+    <div class="foot-row"><span>${esc(sale.id)}</span><span>${esc(serial)}</span></div>
+    <p class="fine">
+      Prototipo: totales con IVA 21 % simulado sobre el total cobrado. No reemplaza comprobante AFIP.
+    </p>
   </div>
 </body>
 </html>`;
