@@ -33,7 +33,7 @@ npm install
 npm run dev
 ```
 
-Abre [http://localhost:5173/erp-prototipo/](http://localhost:5173/erp-prototipo/) en el navegador.
+En desarrollo, Vite usa la raíz del sitio: abrí [http://localhost:5173/](http://localhost:5173/) (por ejemplo [http://localhost:5173/ventas](http://localhost:5173/ventas)). La demo publicada en GitHub Pages sigue bajo `/erp-prototipo/`.
 
 ## Build para producción
 
