@@ -1,5 +1,5 @@
 import { FileDown, Sparkles } from "lucide-react";
-import { toast } from "sonner";
+import { appToast } from "../../lib/appToast";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
 
@@ -12,7 +12,7 @@ const GROWTH_PCT = 15;
  */
 export function MonthlyReportCard() {
   function handleDownloadPdf() {
-    toast.info("Demostración", {
+    appToast.info("Demostración", {
       description:
         "En producción aquí se generaría el PDF con ventas, IVA y detalle por canal desde el servidor.",
     });

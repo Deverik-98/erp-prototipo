@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { toast } from "sonner";
-import { Search, Plus, Trash2, ShoppingCart } from "lucide-react";
+import { Search, Plus, Trash2, ShoppingCart, SearchX } from "lucide-react";
 import { PageHeader, PageShell } from "../components/PageShell";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
@@ -14,14 +13,20 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { Badge } from "../components/ui/badge";
+import { EmptyState, ErrorState, LoadingState } from "../components/feedback/PageStates";
+import { useMockRemoteData } from "../hooks/useMockRemoteData";
+import { appToast } from "../lib/appToast";
 
-const customers = [
+type PosCustomer = { id: number; name: string; phone: string };
+type PosProduct = { id: number; name: string; price: number; stock: number };
+
+const POS_CUSTOMERS: PosCustomer[] = [
   { id: 1, name: "María García", phone: "+54 11 1234-5678" },
   { id: 2, name: "Carlos López", phone: "+54 11 5678-9012" },
   { id: 3, name: "Ana Martínez", phone: "+54 11 9012-3456" },
 ];
 
-const products = [
+const POS_PRODUCTS: PosProduct[] = [
   { id: 1, name: "Leche Entera 1L", price: 65, stock: 150 },
   { id: 2, name: "Queso Fresco 500g", price: 120, stock: 45 },
   { id: 3, name: "Yogurt Natural 1L", price: 40, stock: 200 },
@@ -29,6 +34,15 @@ const products = [
   { id: 5, name: "Queso Mozzarella 1kg", price: 190, stock: 25 },
   { id: 6, name: "Crema de Leche 500ml", price: 55, stock: 120 },
 ];
+
+type PosCatalog = { customers: PosCustomer[]; products: PosProduct[] };
+
+function loadPosCatalog(): PosCatalog {
+  return {
+    customers: POS_CUSTOMERS.map((c) => ({ ...c })),
+    products: POS_PRODUCTS.map((p) => ({ ...p })),
+  };
+}
 
 interface CartItem {
   id: number;
@@ -38,13 +52,17 @@ interface CartItem {
 }
 
 export function PointOfSale() {
+  const remote = useMockRemoteData(loadPosCatalog, { delayMs: 400 });
   const [selectedCustomer, setSelectedCustomer] = useState("");
   const [searchProduct, setSearchProduct] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [discount, setDiscount] = useState("0");
   const [paymentMethod, setPaymentMethod] = useState("");
 
-  const addToCart = (product: (typeof products)[0]) => {
+  const products = remote.status === "success" ? remote.data.products : [];
+  const customers = remote.status === "success" ? remote.data.customers : [];
+
+  const addToCart = (product: PosProduct) => {
     const existingItem = cart.find((item) => item.id === product.id);
     if (existingItem) {
       setCart(
@@ -95,27 +113,71 @@ export function PointOfSale() {
 
   const handleProcessSale = () => {
     if (cart.length === 0) {
-      toast.error("El carrito está vacío");
+      appToast.warning("Falta armar el pedido", {
+        description:
+          "Agregá al menos un producto al carrito antes de confirmar la venta.",
+      });
       return;
     }
     if (!selectedCustomer) {
-      toast.error("Por favor selecciona un cliente");
+      appToast.warning("Elegí un cliente", {
+        description:
+          "Seleccioná quién hace el pedido en la lista (equivalente a un pedido por WhatsApp).",
+      });
       return;
     }
     if (!paymentMethod) {
-      toast.error("Por favor selecciona un método de pago");
+      appToast.warning("Falta el método de pago", {
+        description:
+          "Indicá cómo se cobra: efectivo, tarjeta, transferencia u otra opción.",
+      });
       return;
     }
 
-    toast.success(
-      `Venta procesada exitosamente por $ ${total.toLocaleString("es-AR")}`,
-      { duration: 4000 }
-    );
+    appToast.success("Venta registrada", {
+      description: `Total $ ${total.toLocaleString("es-AR")}. En producción el pedido quedaría guardado y listo para facturar.`,
+      duration: 4500,
+    });
     setCart([]);
     setSelectedCustomer("");
     setDiscount("0");
     setPaymentMethod("");
   };
+
+  if (remote.status === "loading") {
+    return (
+      <PageShell>
+        <PageHeader
+          title="Punto de Venta"
+          description="Registra pedidos entrantes de WhatsApp"
+        />
+        <Card className="p-6">
+          <LoadingState
+            title="Cargando catálogo y clientes…"
+            description="Preparando productos y lista de clientes para tomar el pedido."
+          />
+        </Card>
+      </PageShell>
+    );
+  }
+
+  if (remote.status === "error") {
+    return (
+      <PageShell>
+        <PageHeader
+          title="Punto de Venta"
+          description="Registra pedidos entrantes de WhatsApp"
+        />
+        <Card className="p-6">
+          <ErrorState
+            title="No se pudo cargar el punto de venta"
+            description={remote.error}
+            onRetry={remote.retry}
+          />
+        </Card>
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell>
@@ -163,7 +225,25 @@ export function PointOfSale() {
               />
             </div>
 
-            {searchProduct && filteredProducts.length > 0 && (
+            {searchProduct.trim() !== "" && filteredProducts.length === 0 ? (
+              <EmptyState
+                title="No hay productos con ese nombre"
+                description="Probá otra palabra o revisá la ortografía. También podés borrar la búsqueda para ver todo el catálogo al tipear de nuevo."
+                icon={SearchX}
+                className="py-8"
+              >
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSearchProduct("")}
+                >
+                  Limpiar búsqueda
+                </Button>
+              </EmptyState>
+            ) : null}
+
+            {searchProduct && filteredProducts.length > 0 ? (
               <ul
                 className="max-h-64 divide-y overflow-y-auto rounded-lg border"
                 role="listbox"
@@ -188,7 +268,7 @@ export function PointOfSale() {
                   </li>
                 ))}
               </ul>
-            )}
+            ) : null}
           </Card>
 
           <Card className="p-4 sm:p-6">
@@ -201,13 +281,12 @@ export function PointOfSale() {
             </div>
 
             {cart.length === 0 ? (
-              <div className="py-12 text-center text-gray-500">
-                <ShoppingCart className="mx-auto mb-3 size-12 text-gray-300" aria-hidden />
-                <p>El carrito está vacío</p>
-                <p className="mt-1 text-sm">
-                  Busca y agrega productos para comenzar
-                </p>
-              </div>
+              <EmptyState
+                title="El carrito está vacío"
+                description="Buscá productos arriba y tocá un ítem para sumarlo al pedido, como en un mensaje de WhatsApp."
+                icon={ShoppingCart}
+                className="py-10"
+              />
             ) : (
               <ul className="space-y-3" aria-label="Productos en el carrito">
                 {cart.map((item) => (

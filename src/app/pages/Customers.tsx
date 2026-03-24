@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, Plus, Edit, Trash2, Phone, Mail } from "lucide-react";
 import { PageHeader, PageShell } from "../components/PageShell";
 import { PLACEHOLDER_EMAIL, PLACEHOLDER_FULL_NAME } from "../branding";
@@ -24,6 +24,9 @@ import {
   TableRow,
 } from "../components/ui/table";
 import { Badge } from "../components/ui/badge";
+import { EmptyState, ErrorState, LoadingState } from "../components/feedback/PageStates";
+import { useMockRemoteData } from "../hooks/useMockRemoteData";
+import { appToast } from "../lib/appToast";
 
 const initialCustomersData = [
   {
@@ -103,8 +106,14 @@ const initialCustomersData = [
 type CustomerRow = (typeof initialCustomersData)[0];
 
 export function Customers() {
+  const remote = useMockRemoteData(() => initialCustomersData, { delayMs: 420 });
   const [searchTerm, setSearchTerm] = useState("");
-  const [customersData, setCustomersData] = useState(initialCustomersData);
+  const [customersData, setCustomersData] = useState<CustomerRow[]>([]);
+
+  useEffect(() => {
+    if (remote.status !== "success" || !remote.data) return;
+    setCustomersData((prev) => (prev.length > 0 ? prev : [...remote.data]));
+  }, [remote.status, remote.data]);
   const [newClientOpen, setNewClientOpen] = useState(false);
   const [newClient, setNewClient] = useState({
     cliente: "",
@@ -114,6 +123,7 @@ export function Customers() {
 
   const handleAddClient = () => {
     if (!newClient.cliente.trim() || !newClient.telefono.trim()) return;
+    const nombre = newClient.cliente.trim();
     const id = Math.max(...customersData.map((c) => c.id), 0) + 1;
     setCustomersData([
       ...customersData,
@@ -127,6 +137,9 @@ export function Customers() {
     ]);
     setNewClient({ cliente: "", telefono: "", correo: "" });
     setNewClientOpen(false);
+    appToast.success("Cliente guardado", {
+      description: `${nombre} quedó en el directorio (solo en esta sesión demo).`,
+    });
   };
 
   const filteredCustomers = customersData.filter(
@@ -135,6 +148,41 @@ export function Customers() {
       customer.telefono.includes(searchTerm) ||
       customer.correo.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (remote.status === "loading") {
+    return (
+      <PageShell>
+        <PageHeader
+          title="Directorio de Clientes"
+          description="Gestiona tu base de datos de clientes"
+        />
+        <Card className="p-6">
+          <LoadingState
+            title="Cargando clientes…"
+            description="Obteniendo el directorio desde el servidor simulado."
+          />
+        </Card>
+      </PageShell>
+    );
+  }
+
+  if (remote.status === "error") {
+    return (
+      <PageShell>
+        <PageHeader
+          title="Directorio de Clientes"
+          description="Gestiona tu base de datos de clientes"
+        />
+        <Card className="p-6">
+          <ErrorState
+            title="No se pudo cargar el directorio"
+            description={remote.error}
+            onRetry={remote.retry}
+          />
+        </Card>
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell>
@@ -336,11 +384,20 @@ export function Customers() {
         </Table>
 
         {filteredCustomers.length === 0 && (
-          <div className="py-12 text-center">
-            <p className="text-gray-500">
-              No se encontraron clientes con los criterios de búsqueda
-            </p>
-          </div>
+          <EmptyState
+            title="No encontramos clientes"
+            description="No hay coincidencias con la búsqueda. Probá con otro nombre, teléfono o correo."
+            className="border-t border-gray-100 py-12"
+          >
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setSearchTerm("")}
+            >
+              Limpiar búsqueda
+            </Button>
+          </EmptyState>
         )}
       </Card>
     </PageShell>
