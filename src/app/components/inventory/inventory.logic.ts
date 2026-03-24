@@ -74,7 +74,7 @@ function csvCell(v: string | number) {
 /** Exporta lo visible (respeta filtros). UTF-8 con BOM para Excel en español. */
 export function downloadInventoryCsv(
   rows: InventoryProduct[],
-  filename = "inventario-zumaapp.csv"
+  filename = "inventario-demoapp.csv"
 ) {
   const headers = [
     "nombre",

@@ -1,6 +1,6 @@
-# ZumaApp — ERP Argentina (prototipo)
+# DemoApp — ERP Argentina (prototipo)
 
-Prototipo frontend (**ZumaApp**) de un ERP B2B SaaS para digitalizar PyMEs (productores lácteos, comercios minoristas) que operan con Excel y pedidos por WhatsApp.
+Prototipo frontend (**DemoApp**) de un ERP B2B SaaS para digitalizar PyMEs (productores lácteos, comercios minoristas) que operan con Excel y pedidos por WhatsApp.
 
 ## Descripción
 
