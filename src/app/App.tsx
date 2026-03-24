@@ -6,7 +6,12 @@ export default function App() {
   return (
     <>
       <RouterProvider router={router} />
-      <Toaster position="top-center" richColors closeButton />
+      <Toaster
+        position="top-center"
+        richColors
+        closeButton
+        style={{ zIndex: 100_000 }}
+      />
     </>
   );
 }

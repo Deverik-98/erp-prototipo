@@ -1057,17 +1057,26 @@ export function Settings() {
                         <ChevronDown className="size-4 shrink-0 opacity-60" aria-hidden />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-[min(100vw-2rem,14rem)]">
-                      <DropdownMenuItem onClick={handleExportCSV}>
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-[min(100vw-2rem,14rem)]"
+                    >
+                      <DropdownMenuItem
+                        onSelect={() => {
+                          requestAnimationFrame(() => handleExportCSV());
+                        }}
+                      >
                         Exportar como CSV
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() =>
-                          appToast.info("Exportación Excel en desarrollo", {
-                            description:
-                              "Pronto podrás descargar la bitácora en .xlsx con el mismo criterio de filtros.",
-                          })
-                        }
+                        onSelect={() => {
+                          requestAnimationFrame(() =>
+                            appToast.info("Exportación Excel en desarrollo", {
+                              description:
+                                "Pronto podrás descargar la bitácora en .xlsx con el mismo criterio de filtros.",
+                            })
+                          );
+                        }}
                       >
                         Exportar como Excel
                       </DropdownMenuItem>
