@@ -1,5 +1,5 @@
 import { FileDown, Sparkles, TrendingUp } from "lucide-react";
-import { toast } from "sonner";
+import { appToast } from "../../lib/appToast";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
 import { CompactPeriodKpis, type CompactKpiItem } from "./CompactPeriodKpis";
@@ -20,7 +20,7 @@ export function MonthContextCard({
   embedded,
 }: MonthContextCardProps) {
   function handleDownloadPdf() {
-    toast.info("Vista previa", {
+    appToast.info("Vista previa", {
       description:
         "En producción se generaría el PDF con ventas, IVA y desglose por canal desde el servidor.",
     });

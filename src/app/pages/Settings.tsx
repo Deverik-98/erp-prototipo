@@ -69,7 +69,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "../components/ui/collapsible";
-import { toast } from "sonner";
+import { appToast } from "../lib/appToast";
 import { PageHeader, PageShell } from "../components/PageShell";
 import { PLACEHOLDER_EMAIL, PLACEHOLDER_FULL_NAME } from "../branding";
 
@@ -278,7 +278,10 @@ export function Settings() {
 
   const handleSaveRoles = () => {
     setHasUnsavedChanges(false);
-    toast.success("Cambios en roles guardados correctamente");
+    appToast.success("Cambios guardados", {
+      description:
+        "Los roles y permisos quedaron actualizados en esta sesión (prototipo).",
+    });
   };
 
   const filteredUsers = users.filter(
@@ -342,12 +345,31 @@ export function Settings() {
   const totalPages = Math.ceil(filteredAudit.length / PAGE_SIZE);
 
   const handleExportCSV = () => {
-    exportToCSV(filteredAudit);
-    toast.success("Bitácora exportada en CSV");
+    if (filteredAudit.length === 0) {
+      appToast.warning("No hay registros para exportar", {
+        description:
+          "Ajustá los filtros de la bitácora o el rango de fechas para incluir al menos un evento.",
+      });
+      return;
+    }
+    try {
+      exportToCSV(filteredAudit);
+      appToast.success("Bitácora exportada", {
+        description: `Se descargaron ${filteredAudit.length} registro(s) en CSV.`,
+      });
+    } catch (e) {
+      const detail =
+        e instanceof Error ? e.message : "Volvé a intentar en unos segundos.";
+      appToast.error("No se pudo exportar la bitácora", {
+        description: detail,
+        action: { label: "Reintentar", onClick: () => handleExportCSV() },
+      });
+    }
   };
 
   const handleAddRole = () => {
     if (!newRoleName.trim()) return;
+    const nombreRol = newRoleName.trim();
     const id = `rol-${Date.now()}`;
     setRoles([
       ...roles,
@@ -364,7 +386,9 @@ export function Settings() {
     setNewRoleDesc("");
     setNewRoleOpen(false);
     setExpandedRoles((p) => [...p, id]);
-    toast.success(`Rol "${newRoleName}" creado`);
+    appToast.success("Rol creado", {
+      description: `El rol "${nombreRol}" ya aparece en la lista y podés asignarle permisos.`,
+    });
   };
 
   const togglePermission = (roleId: string, permissionId: string) => {
@@ -416,7 +440,9 @@ export function Settings() {
     ]);
     setNewUser({ nombre: "", correo: "", rol: "Cajero", estado: "Activo" });
     setNewUserOpen(false);
-    toast.success(`Usuario "${nombre}" creado`);
+    appToast.success("Usuario creado", {
+      description: `${nombre} quedó en el listado con rol ${newUser.rol} (solo en esta sesión demo).`,
+    });
   };
 
   const editingUser = editUserOpen ? users.find((u) => u.id === editUserOpen) : null;
@@ -844,7 +870,15 @@ export function Settings() {
                   </div>
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setEditUserOpen(null)}>Cancelar</Button>
-                    <Button onClick={() => { setEditUserOpen(null); toast.success("Usuario actualizado"); }}>
+                    <Button
+                      onClick={() => {
+                        setEditUserOpen(null);
+                        appToast.success("Usuario actualizado", {
+                          description:
+                            "Los cambios quedaron aplicados en esta sesión (prototipo). En producción se sincronizarían con el servidor.",
+                        });
+                      }}
+                    >
                       Guardar
                     </Button>
                   </DialogFooter>
@@ -1028,7 +1062,12 @@ export function Settings() {
                         Exportar como CSV
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => toast.info("Exportación Excel en desarrollo")}
+                        onClick={() =>
+                          appToast.info("Exportación Excel en desarrollo", {
+                            description:
+                              "Pronto podrás descargar la bitácora en .xlsx con el mismo criterio de filtros.",
+                          })
+                        }
                       >
                         Exportar como Excel
                       </DropdownMenuItem>

@@ -9,6 +9,8 @@ import {
   ArrowRight,
   Info,
 } from "lucide-react";
+import { ErrorState, LoadingState } from "../components/feedback/PageStates";
+import { useMockRemoteData } from "../hooks/useMockRemoteData";
 import { PageShell } from "../components/PageShell";
 import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
@@ -99,6 +101,132 @@ const recentOrders = [
     estado: "Completado" as const,
   },
 ];
+
+function DashboardRecentOrdersSection() {
+  const remote = useMockRemoteData(() => recentOrders, {
+    delayMs: 550,
+    failFirstLoad: true,
+  });
+
+  if (remote.status === "loading") {
+    return (
+      <Card className="p-4 sm:p-6">
+        <LoadingState
+          title="Cargando pedidos recientes…"
+          description="Obteniendo los últimos movimientos registrados en el punto de venta."
+          className="py-12"
+        />
+      </Card>
+    );
+  }
+
+  if (remote.status === "error") {
+    return (
+      <Card className="p-4 sm:p-6">
+        <ErrorState
+          title="No se pudieron cargar los pedidos"
+          description={remote.error}
+          onRetry={remote.retry}
+        />
+      </Card>
+    );
+  }
+
+  const orders = remote.data;
+
+  return (
+    <Card className="p-4 sm:p-6">
+      <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-gray-600">
+          Últimos pedidos cargados en punto de venta (datos de ejemplo).
+        </p>
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full shrink-0 sm:w-auto"
+          asChild
+        >
+          <Link to="/punto-venta" className="gap-2">
+            Ir al punto de venta
+            <ArrowRight className="size-4" aria-hidden />
+          </Link>
+        </Button>
+      </div>
+
+      <ul
+        className="space-y-3 md:hidden"
+        aria-label="Movimiento reciente en vista compacta"
+      >
+        {orders.map((order) => (
+          <li key={order.id}>
+            <Card className="border-gray-200 p-4 shadow-sm">
+              <div className="flex items-start justify-between gap-2">
+                <Link
+                  to="/punto-venta"
+                  className="rounded-sm text-sm font-semibold text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                >
+                  {order.id}
+                </Link>
+                <OrderStatusBadge estado={order.estado} />
+              </div>
+              <p className="mt-2 font-medium text-gray-900">{order.cliente}</p>
+              <p className="mt-1 text-xs text-gray-500">{order.fecha}</p>
+              <p className="mt-2 line-clamp-2 text-sm text-gray-600">
+                {order.productos}
+              </p>
+              <p className="mt-3 text-base font-semibold text-gray-900">
+                {order.total}
+              </p>
+            </Card>
+          </li>
+        ))}
+      </ul>
+
+      <div className="hidden overflow-x-auto md:block">
+        <Table className="min-w-[640px]">
+          <caption className="sr-only">
+            Pedidos recientes: cliente, fecha, productos, total y estado
+          </caption>
+          <TableHeader>
+            <TableRow>
+              <TableHead scope="col">Pedido</TableHead>
+              <TableHead scope="col">Cliente</TableHead>
+              <TableHead scope="col">Fecha y hora</TableHead>
+              <TableHead scope="col">Detalle</TableHead>
+              <TableHead scope="col">Total</TableHead>
+              <TableHead scope="col">Estado</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {orders.map((order) => (
+              <TableRow key={order.id}>
+                <TableCell className="font-medium">
+                  <Link
+                    to="/punto-venta"
+                    className="rounded-sm text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+                  >
+                    {order.id}
+                  </Link>
+                </TableCell>
+                <TableCell>{order.cliente}</TableCell>
+                <TableCell className="whitespace-nowrap text-gray-600">
+                  {order.fecha}
+                </TableCell>
+                <TableCell className="max-w-[200px] truncate sm:max-w-xs">
+                  {order.productos}
+                </TableCell>
+                <TableCell className="font-semibold">{order.total}</TableCell>
+                <TableCell>
+                  <OrderStatusBadge estado={order.estado} />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </Card>
+  );
+}
 
 function OrderStatusBadge({ estado }: { estado: "Completado" | "Pendiente" }) {
   if (estado === "Completado") {
@@ -238,96 +366,7 @@ export function Dashboard() {
         >
           Movimiento reciente
         </h2>
-        <Card className="p-4 sm:p-6">
-          <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-gray-600">
-              Últimos pedidos cargados en punto de venta (datos de ejemplo).
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full shrink-0 sm:w-auto"
-              asChild
-            >
-              <Link to="/punto-venta" className="gap-2">
-                Ir al punto de venta
-                <ArrowRight className="size-4" aria-hidden />
-              </Link>
-            </Button>
-          </div>
-
-          <ul
-            className="space-y-3 md:hidden"
-            aria-label="Movimiento reciente en vista compacta"
-          >
-            {recentOrders.map((order) => (
-              <li key={order.id}>
-                <Card className="border-gray-200 p-4 shadow-sm">
-                  <div className="flex items-start justify-between gap-2">
-                    <Link
-                      to="/punto-venta"
-                      className="rounded-sm text-sm font-semibold text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                    >
-                      {order.id}
-                    </Link>
-                    <OrderStatusBadge estado={order.estado} />
-                  </div>
-                  <p className="mt-2 font-medium text-gray-900">{order.cliente}</p>
-                  <p className="mt-1 text-xs text-gray-500">{order.fecha}</p>
-                  <p className="mt-2 line-clamp-2 text-sm text-gray-600">
-                    {order.productos}
-                  </p>
-                  <p className="mt-3 text-base font-semibold text-gray-900">
-                    {order.total}
-                  </p>
-                </Card>
-              </li>
-            ))}
-          </ul>
-
-          <div className="hidden overflow-x-auto md:block">
-            <Table className="min-w-[640px]">
-              <caption className="sr-only">
-                Pedidos recientes: cliente, fecha, productos, total y estado
-              </caption>
-              <TableHeader>
-                <TableRow>
-                  <TableHead scope="col">Pedido</TableHead>
-                  <TableHead scope="col">Cliente</TableHead>
-                  <TableHead scope="col">Fecha y hora</TableHead>
-                  <TableHead scope="col">Detalle</TableHead>
-                  <TableHead scope="col">Total</TableHead>
-                  <TableHead scope="col">Estado</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentOrders.map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell className="font-medium">
-                      <Link
-                        to="/punto-venta"
-                        className="rounded-sm text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
-                      >
-                        {order.id}
-                      </Link>
-                    </TableCell>
-                    <TableCell>{order.cliente}</TableCell>
-                    <TableCell className="whitespace-nowrap text-gray-600">
-                      {order.fecha}
-                    </TableCell>
-                    <TableCell className="max-w-[200px] truncate sm:max-w-xs">
-                      {order.productos}
-                    </TableCell>
-                    <TableCell className="font-semibold">{order.total}</TableCell>
-                    <TableCell>
-                      <OrderStatusBadge estado={order.estado} />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </Card>
+        <DashboardRecentOrdersSection />
       </section>
     </PageShell>
   );

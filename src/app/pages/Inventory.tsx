@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
 import {
   Search,
   Filter,
@@ -56,6 +55,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "../components/ui/collapsible";
+import { EmptyState, ErrorState, LoadingState } from "../components/feedback/PageStates";
 import { INVENTORY_MOCK } from "../components/inventory/inventory.mock";
 import type { InventoryGroupMode, InventoryProduct } from "../components/inventory/inventory.types";
 import {
@@ -68,6 +68,8 @@ import {
 } from "../components/inventory/inventory.logic";
 import { InventorySummaryCards } from "../components/inventory/InventorySummaryCards";
 import { InventoryProductFormDialog } from "../components/inventory/InventoryProductFormDialog";
+import { useMockRemoteData } from "../hooks/useMockRemoteData";
+import { appToast } from "../lib/appToast";
 
 type OrigenFilter = "all" | "produccion" | "externo";
 
@@ -224,12 +226,18 @@ function MobileProductCard({ item }: { item: InventoryProduct }) {
 }
 
 export function Inventory() {
-  const [products, setProducts] = useState<InventoryProduct[]>(() => [
-    ...INVENTORY_MOCK,
-  ]);
-  const idRef = useRef(
-    Math.max(0, ...INVENTORY_MOCK.map((p) => p.id)) + 1
-  );
+  const remote = useMockRemoteData(() => [...INVENTORY_MOCK], { delayMs: 450 });
+  const [products, setProducts] = useState<InventoryProduct[]>([]);
+  const idRef = useRef(1);
+
+  useEffect(() => {
+    if (remote.status !== "success" || !remote.data) return;
+    setProducts((prev) => {
+      if (prev.length > 0) return prev;
+      idRef.current = Math.max(0, ...remote.data.map((p) => p.id)) + 1;
+      return [...remote.data];
+    });
+  }, [remote.status, remote.data]);
   const nextId = useCallback(() => {
     const n = idRef.current;
     idRef.current += 1;
@@ -290,33 +298,95 @@ export function Inventory() {
   const collapseAllGroups = () => setOpenGroups({});
 
   const handleImportMock = () => {
-    toast.success(
-      "Importación simulada: el archivo Excel se procesaría aquí. En producción se cargarían los productos.",
-      { duration: 5000 }
-    );
+    appToast.success("Importación simulada correcta", {
+      description:
+        "En producción el Excel se validaría aquí y los productos quedarían guardados en el servidor.",
+      duration: 5000,
+    });
     setImportOpen(false);
   };
 
   const handleExportCsv = () => {
     if (filteredData.length === 0) {
-      toast.error("No hay filas para exportar con los filtros actuales.");
+      appToast.warning("No hay nada para exportar", {
+        description:
+          "No hay filas con los filtros actuales. Quitá búsqueda o categoría para incluir ítems, o revisá el origen del stock.",
+      });
       return;
     }
     const d = new Date();
     const stamp = d.toISOString().slice(0, 10);
-    downloadInventoryCsv(filteredData, `inventario-demoapp-${stamp}.csv`);
-    toast.success(
-      `Exportadas ${filteredData.length} fila(s). Archivo listo para abrir en Excel.`,
-      { duration: 4000 }
-    );
+    const filename = `inventario-demoapp-${stamp}.csv`;
+    const n = filteredData.length;
+    try {
+      downloadInventoryCsv(filteredData, filename);
+      appToast.success("Exportación lista", {
+        description: `Se descargaron ${n} fila(s) en CSV. Podés abrir el archivo en Excel.`,
+        duration: 4000,
+      });
+    } catch (e) {
+      const detail =
+        e instanceof Error ? e.message : "Volvé a intentar en unos segundos.";
+      appToast.error("No se pudo exportar el inventario", {
+        description: detail,
+        action: { label: "Reintentar", onClick: () => handleExportCsv() },
+      });
+    }
   };
 
   const handleCreate = (rows: InventoryProduct[]) => {
     setProducts((prev) => [...rows, ...prev]);
-    toast.success(
-      `${rows.length} ítem(es) agregados al inventario (solo en esta sesión demo).`
-    );
+    appToast.success("Productos agregados", {
+      description: `${rows.length} ítem(es) quedaron en el catálogo solo para esta sesión (prototipo).`,
+    });
   };
+
+  if (remote.status === "loading") {
+    return (
+      <PageShell>
+        <PageHeader
+          title="Inventario"
+          description={
+            <>
+              Stock, costos y variantes. Los KPIs reflejan{" "}
+              <strong>lo filtrado</strong>. Con agrupación activa, cada grupo
+              muestra totales y podés desplegar el detalle por variante.
+            </>
+          }
+        />
+        <Card className="overflow-hidden shadow-sm">
+          <LoadingState
+            title="Cargando inventario…"
+            description="Obteniendo productos, stock y costos desde el servidor simulado."
+          />
+        </Card>
+      </PageShell>
+    );
+  }
+
+  if (remote.status === "error") {
+    return (
+      <PageShell>
+        <PageHeader
+          title="Inventario"
+          description={
+            <>
+              Stock, costos y variantes. Los KPIs reflejan{" "}
+              <strong>lo filtrado</strong>. Con agrupación activa, cada grupo
+              muestra totales y podés desplegar el detalle por variante.
+            </>
+          }
+        />
+        <Card className="overflow-hidden shadow-sm">
+          <ErrorState
+            title="No se pudo cargar el inventario"
+            description={remote.error}
+            onRetry={remote.retry}
+          />
+        </Card>
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell>
@@ -683,13 +753,25 @@ export function Inventory() {
         </div>
 
         {filteredData.length === 0 ? (
-          <div className="border-t border-gray-100 px-4 py-12 text-center">
-            <p className="text-gray-600">
-              No hay productos con estos criterios.
-            </p>
-            <p className="mt-1 text-sm text-gray-500">
-              Probá limpiar la búsqueda o cambiar categoría / origen.
-            </p>
+          <div className="border-t border-gray-100 px-4">
+            <EmptyState
+              title="No hay productos con estos criterios"
+              description="Probá limpiar la búsqueda o cambiar categoría u origen del stock para ver más resultados."
+              className="py-12"
+            >
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSearchTerm("");
+                  setCategoryFilter("all");
+                  setOrigenFilter("all");
+                }}
+              >
+                Quitar filtros
+              </Button>
+            </EmptyState>
           </div>
         ) : null}
       </Card>
