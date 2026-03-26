@@ -50,7 +50,7 @@ export function SalesHistoryTab({ onViewReceipt }: SalesHistoryTabProps) {
         s.receiptNumber.includes(q) ||
         s.customerName.toLowerCase().includes(q) ||
         s.customerPhone.includes(q) ||
-        s.paymentMethodLabel.toLowerCase().includes(q)
+        s.paymentsSummaryLabel.toLowerCase().includes(q)
     );
   }, [sales, query]);
 
@@ -140,9 +140,13 @@ export function SalesHistoryTab({ onViewReceipt }: SalesHistoryTabProps) {
                         {sale.customerPhone}
                       </span>
                     </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className="font-normal">
-                        {sale.paymentMethodLabel}
+                    <TableCell className="max-w-[10rem]">
+                      <Badge
+                        variant="secondary"
+                        className="block max-w-full truncate font-normal"
+                        title={sale.paymentsSummaryLabel}
+                      >
+                        {sale.paymentsSummaryLabel}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right font-semibold tabular-nums">

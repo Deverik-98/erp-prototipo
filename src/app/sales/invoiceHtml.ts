@@ -9,13 +9,6 @@ function esc(s: string) {
     .replace(/"/g, "&quot;");
 }
 
-/** Importes en pesos, estilo ticket. */
-const money0 = new Intl.NumberFormat("es-AR", {
-  style: "currency",
-  currency: "ARS",
-  maximumFractionDigits: 0,
-});
-
 const money2 = new Intl.NumberFormat("es-AR", {
   style: "currency",
   currency: "ARS",
@@ -23,7 +16,10 @@ const money2 = new Intl.NumberFormat("es-AR", {
   maximumFractionDigits: 2,
 });
 
-const IVA_RATE = 0.21;
+const pctFmt = new Intl.NumberFormat("es-AR", {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
+});
 
 function formatReceiptDate(d: Date) {
   const dd = String(d.getDate()).padStart(2, "0");
@@ -40,7 +36,6 @@ function formatReceiptTime(d: Date) {
   });
 }
 
-/** Código de barras simulado (solo visual, coherente por venta). */
 function barcodeBarsHtml(seed: string): string {
   let h = 2166136261;
   for (let i = 0; i < seed.length; i++) {
@@ -63,10 +58,6 @@ function footerSerial(saleId: string): string {
   return `Z1B${a}`;
 }
 
-/**
- * HTML autocontenido: ticket térmico / factura simplificada (demo, no fiscal).
- * Layout responsive: ancho fluido hasta ~26rem, centrado, tipografía monoespaciada.
- */
 export function buildInvoiceHtml(sale: SaleRecord): string {
   const issued = new Date(sale.issuedAt);
   const fecha = formatReceiptDate(issued);
@@ -89,16 +80,24 @@ export function buildInvoiceHtml(sale: SaleRecord): string {
     })
     .join("");
 
-  const total = sale.total;
-  const biGravado = total / (1 + IVA_RATE);
-  const ivaMonto = total - biGravado;
-
   const discountBlock =
     sale.discountPct > 0 && sale.discountAmount > 0
       ? `<div class="t-row"><span>DESCUENTO (${sale.discountPct}%)</span><span>− ${money2.format(sale.discountAmount)}</span></div>`
       : "";
 
-  const payLine = `${esc(sale.paymentMethodLabel.toUpperCase())} 1`;
+  const taxRows = sale.taxLines
+    .map(
+      (t) => `
+    <div class="t-row"><span>${esc(t.label.toUpperCase())} (${pctFmt.format(t.ratePercent)}%)</span><span>${money2.format(t.amount)}</span></div>`
+    )
+    .join("");
+
+  const payRows = sale.payments
+    .map(
+      (p, i) => `
+    <div class="pay"><span>${esc(p.methodLabel.toUpperCase())} ${i + 1}</span><span>${money2.format(p.amount)}</span></div>`
+    )
+    .join("");
 
   const bc = barcodeBarsHtml(`${sale.id}-${sale.receiptNumber}`);
   const serial = footerSerial(sale.id);
@@ -314,18 +313,24 @@ export function buildInvoiceHtml(sale: SaleRecord): string {
     ${itemRows}
     <hr class="d" />
     <div class="t-row"><span>EXENTO (E)</span><span>${money2.format(0)}</span></div>
+    <div class="t-row"><span>SUBTOTAL</span><span>${money2.format(sale.subtotal)}</span></div>
     ${discountBlock}
-    <div class="t-row"><span>BI G (21,00%)</span><span>${money2.format(biGravado)}</span></div>
-    <div class="t-row"><span>IVA G (21,00%)</span><span>${money2.format(ivaMonto)}</span></div>
-    <div class="total-row"><span>TOTAL</span><span>${money2.format(total)}</span></div>
-    <div class="pay"><span>${payLine}</span><span>${money2.format(total)}</span></div>
+    <div class="t-row"><span>BASE IMPONIBLE</span><span>${money2.format(sale.taxableBase)}</span></div>
+    ${taxRows}
+    ${
+      sale.taxesTotal > 0
+        ? `<div class="t-row"><span>IMPUESTOS (SUMA)</span><span>${money2.format(sale.taxesTotal)}</span></div>`
+        : ""
+    }
+    <div class="total-row"><span>TOTAL</span><span>${money2.format(sale.total)}</span></div>
+    ${payRows}
     <hr class="d" />
     <div class="thanks">GRACIAS POR SU VISITA</div>
     <div class="bc-wrap">${bc}</div>
     <div class="bc-num">${esc(barcodeDigits)}</div>
     <div class="foot-row"><span>${esc(sale.id)}</span><span>${esc(serial)}</span></div>
     <p class="fine">
-      Prototipo: totales con IVA 21 % simulado sobre el total cobrado. No reemplaza comprobante AFIP.
+      Prototipo: impuestos y medios de pago según lo cargado en el POS. No reemplaza comprobante fiscal.
     </p>
   </div>
 </body>
