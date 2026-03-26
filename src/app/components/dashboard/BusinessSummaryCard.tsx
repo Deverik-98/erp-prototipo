@@ -103,12 +103,12 @@ export function BusinessSummaryCard({
             {pendientes > 0 ? (
               <>
                 <Link
-                  to="/punto-venta"
+to="/ventas"
                   className="block text-lg font-bold tabular-nums tracking-tight text-blue-700 hover:text-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-sm sm:text-xl"
                 >
                   {pendientes}
                 </Link>
-                <p className="text-xs text-gray-500">Revisalos en punto de venta</p>
+                <p className="text-xs text-gray-500">Revisalos en Ventas</p>
               </>
             ) : (
               <>
