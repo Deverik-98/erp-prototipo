@@ -69,6 +69,8 @@ El proyecto se despliega en **GitHub Pages** automáticamente al hacer push a la
 - **`develop`** — Se integra solo con **merge `--no-ff`** desde `feature/*` (o PR equivalente). No commitear features directo en `develop`.
 - **`main`** — Código estable para demo; se actualiza con **merge `--no-ff`** desde `develop` cuando el integrador decide publicar.
 
+Si omitís `--no-ff`, Git puede hacer *fast-forward* y el historial deja de mostrar el merge de la feature como rama integrada; **usar siempre** `--no-ff` en esos dos pasos.
+
 Orden típico: `feature/mi-tarea` → `develop` → `main`. Tras integrar, eliminar la rama `feature` en local y remoto.
 
 ## Licencia
