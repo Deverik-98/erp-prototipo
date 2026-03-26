@@ -146,7 +146,7 @@ function DashboardRecentOrdersSection() {
           className="w-full shrink-0 sm:w-auto"
           asChild
         >
-          <Link to="/punto-venta" className="gap-2">
+              <Link to="/ventas" className="gap-2">
             Ir al punto de venta
             <ArrowRight className="size-4" aria-hidden />
           </Link>
@@ -162,7 +162,7 @@ function DashboardRecentOrdersSection() {
             <Card className="border-gray-200 p-4 shadow-sm">
               <div className="flex items-start justify-between gap-2">
                 <Link
-                  to="/punto-venta"
+                  to="/ventas"
                   className="rounded-sm text-sm font-semibold text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                 >
                   {order.id}
@@ -202,7 +202,7 @@ function DashboardRecentOrdersSection() {
               <TableRow key={order.id}>
                 <TableCell className="font-medium">
                   <Link
-                    to="/punto-venta"
+                    to="/ventas"
                     className="rounded-sm text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
                   >
                     {order.id}
@@ -251,10 +251,10 @@ function OrderStatusBadge({ estado }: { estado: "Completado" | "Pendiente" }) {
 
 const quickActions = [
   {
-    to: "/punto-venta",
+    to: "/ventas",
     label: "Nuevo pedido",
     icon: ShoppingCart,
-    description: "Abrir POS",
+    description: "Ventas y recibos",
   },
   {
     to: "/inventario",

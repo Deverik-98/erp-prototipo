@@ -4,7 +4,7 @@ Prototipo frontend (**DemoApp**) de un ERP B2B SaaS para digitalizar PyMEs (prod
 
 ## Descripción
 
-Aplicación web interna con panel de control, inventario, punto de venta, directorio de clientes y configuración. Diseñada para dueños de negocio y personal administrativo con interfaces simples e intuitivas.
+Aplicación web interna con panel de control, inventario, ventas (POS + historial y recibos), directorio de clientes y configuración. Diseñada para dueños de negocio y personal administrativo con interfaces simples e intuitivas.
 
 **Alcance:** Solo frontend. Sin backend. Datos mock/placeholder para demostración.
 
@@ -12,7 +12,7 @@ Aplicación web interna con panel de control, inventario, punto de venta, direct
 
 - **Inicio (dashboard):** Saludo + sucursal → “Cómo va hoy” → atajos → **un solo card** “Stock y contexto” (`DashboardStockContextSection`): izquierda lista compacta de alertas (sin grid 3× que estira filas) + CTA; derecha KPIs **layout strip** + **Cierre del mes** → gráficos → movimiento reciente
 - **Inventario:** KPIs según filtros; **agrupación** con **colapsables** (totales por grupo: líneas, stock u., valor, alertas) y detalle al expandir; filtro **Origen** (producción interna vs. compra · distribución); **export CSV**; **modal de alta** en 2 pestañas (datos generales + variantes con tipos de atributo reutilizables o SKU único); catálogo en estado local (demo). *MVP:* sin MRP/BOM; variantes como filas de inventario independientes (escalable a matriz talla×color en backend).
-- **Punto de Venta:** Registro de pedidos tipo WhatsApp, carrito, descuentos, métodos de pago
+- **Ventas:** Nueva venta (pedido tipo WhatsApp, carrito, descuentos, medios de pago); **historial** con búsqueda; **recibo** con vista previa en pantalla y **descarga PDF simulada** (prototipo, sin archivo). Ruta: `/ventas` (antes `/punto-venta` redirige).
 - **Clientes:** Directorio con búsqueda, alta de nuevos clientes
 - **Configuración:** Roles (Admin, Cajero), bitácora de actividad
 
@@ -33,7 +33,7 @@ npm install
 npm run dev
 ```
 
-Abre [http://localhost:5173/erp-prototipo/](http://localhost:5173/erp-prototipo/) en el navegador.
+En desarrollo, Vite usa la raíz del sitio: abrí [http://localhost:5173/](http://localhost:5173/) (por ejemplo [http://localhost:5173/ventas](http://localhost:5173/ventas)). La demo publicada en GitHub Pages sigue bajo `/erp-prototipo/`.
 
 ## Build para producción
 
